@@ -128,7 +128,7 @@
   <div class="game-info" style="max-width: {GAME_WIDTH}px">
     <div class="next-fruit" aria-live="polite">
       <!-- Use aria-live for screen readers to announce changes -->
-      Next: {FRUITS[gameState.nextFruit]?.name ?? "Unknown"}
+      Next: <Fruit fruitIndex={gameState.nextFruit} />
       <!-- Safety check for name -->
     </div>
     <div class="score" aria-live="polite">
@@ -168,6 +168,8 @@
         />
       </div>
     {/if}
+
+    <div class="drop-line" style="transform: translateX({mouseX - 1}px);"></div>
 
     <!-- Rendered fruits - Use a unique identifier if available, otherwise index -->
     <!-- Assuming FruitState doesn't have a stable ID, index might be necessary -->
@@ -231,6 +233,16 @@
     user-select: none;
   }
 
+  .drop-line {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 0;
+    width: 1px;
+    height: 100%;
+    background: red;
+  }
+
   .preview-fruit {
     position: absolute;
     top: 0;
@@ -238,8 +250,6 @@
     /* width: 100%; */ /* Width is determined by the fruit component */
     pointer-events: none; /* Prevent interaction */
     z-index: 1;
-    /* Transition for smoother movement */
-    transition: transform 0.05s linear;
   }
 
   .game-over {
