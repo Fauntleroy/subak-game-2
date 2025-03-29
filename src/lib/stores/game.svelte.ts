@@ -290,7 +290,7 @@ export class GameState {
     this.setMergeEffects(newMergeEffects);
 
     // 4. Add the new, larger fruit (addFruit will update map and array)
-    this.addFruit(midpoint.x, midpoint.y, nextIndex);
+    this.addFruit(nextIndex, midpoint.x, midpoint.y);
 
     // Update the score
     gameState.setScore(gameState.score + (nextFruitType.points || 0));
