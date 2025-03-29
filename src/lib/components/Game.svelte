@@ -22,8 +22,6 @@
 
   // Type the container element reference
   let gameContainer: HTMLDivElement | null = null;
-  // Type the animation frame ID
-  let animationFrame: number | undefined = undefined;
 
   // Svelte 5 runes for state
   let isDropping = $state(false);
@@ -39,10 +37,6 @@
     // Cleanup function
     return () => {
       isActive = false; // Set flag
-      if (animationFrame) {
-        cancelAnimationFrame(animationFrame);
-        animationFrame = undefined;
-      }
       console.log("Game component destroyed, animation stopped.");
       // Optional: Consider if physics world needs explicit cleanup here
     };

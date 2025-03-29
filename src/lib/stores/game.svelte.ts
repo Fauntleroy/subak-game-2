@@ -79,7 +79,7 @@ export class GameState {
     this.animationFrameId = requestAnimationFrame(() => this.update()); // Request next frame
   }
 
-  initPhysics = async (): Promise<void> => {
+  async initPhysics(): Promise<void> {
     console.log("init physics call");
     try {
       await RAPIER.init();
@@ -99,7 +99,7 @@ export class GameState {
       console.error("Failed to initialize Rapier or create world:", error);
       gameState.setGameOver(true);
     }
-  };
+  }
 
   stepPhysics(): void {
     if (!this.physicsWorld || !this.eventQueue) {
@@ -204,7 +204,7 @@ export class GameState {
     this.checkGameOver();
   }
 
-  createWall = (x: number, y: number, width: number, height: number): void => {
+  createWall(x: number, y: number, width: number, height: number): void {
     if (!this.physicsWorld) {
       console.error("Cannot create wall: Physics world not initialized.");
       return;
@@ -215,7 +215,7 @@ export class GameState {
     // Walls don't need ActiveEvents.COLLISION_EVENTS unless you want to detect collisions with them
     const colliderDesc = RAPIER.ColliderDesc.cuboid(width / 2, height / 2);
     this.physicsWorld.createCollider(colliderDesc, body);
-  };
+  }
 
   mergeFruits(handleA: number, handleB: number): void {
     if (!this.physicsWorld) {
