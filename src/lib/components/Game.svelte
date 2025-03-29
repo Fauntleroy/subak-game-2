@@ -1,22 +1,22 @@
 <script lang="ts">
   // Import Svelte utilities and types
-  import { onDestroy, onMount } from "svelte";
-  import type { Writable } from "svelte/store"; // Import Writable type if needed elsewhere
+  import { onDestroy, onMount } from 'svelte';
+  import type { Writable } from 'svelte/store'; // Import Writable type if needed elsewhere
 
   // Import Components
-  import Fruit from "./Fruit.svelte";
-  import ScoreBoard from "./ScoreBoard.svelte";
-  import MergeEffect from "./MergeEffect.svelte";
+  import Fruit from './Fruit.svelte';
+  import ScoreBoard from './ScoreBoard.svelte';
+  import MergeEffect from './MergeEffect.svelte';
 
   // Import Stores and Types
-  import { gameState } from "../stores/game.svelte";
-  import { saveScore } from "../stores/db"; // Assuming saveScore is typed in db.ts
+  import { gameState } from '../stores/game.svelte';
+  import { saveScore } from '../stores/db'; // Assuming saveScore is typed in db.ts
 
   // Import Constants and Types
-  import { GAME_WIDTH, GAME_HEIGHT, FRUITS } from "../constants"; // Ensure FRUITS is typed in constants.ts
+  import { GAME_WIDTH, GAME_HEIGHT, FRUITS } from '../constants'; // Ensure FRUITS is typed in constants.ts
 
   // Import Utilities
-  import { clamp } from "../utils"; // Assuming clamp is typed in utils.ts
+  import { clamp } from '../utils'; // Assuming clamp is typed in utils.ts
 
   // --- Component State ---
 
@@ -37,7 +37,7 @@
     // Cleanup function
     return () => {
       isActive = false; // Set flag
-      console.log("Game component destroyed, animation stopped.");
+      console.log('Game component destroyed, animation stopped.');
       // Optional: Consider if physics world needs explicit cleanup here
     };
   });
@@ -46,10 +46,10 @@
   $effect(() => {
     if (gameState.gameOver) {
       // Ensure score is a number before saving
-      if (typeof gameState.score === "number") {
+      if (typeof gameState.score === 'number') {
         saveScore(gameState.score);
       } else {
-        console.error("Attempted to save invalid score:", gameState.score);
+        console.error('Attempted to save invalid score:', gameState.score);
       }
     }
   });
@@ -75,7 +75,7 @@
 
   // Handle keyboard interaction for dropping fruit (Accessibility)
   function handleKeyDown(event: KeyboardEvent): void {
-    if (event.key === "Enter" || event.key === " ") {
+    if (event.key === 'Enter' || event.key === ' ') {
       addCurrentFruit();
 
       event.preventDefault(); // Prevent default spacebar scroll
@@ -122,17 +122,20 @@
   onkeydown={handleKeyDown}
   role="application"
   aria-label="Fruit merging game area"
-  tabindex="0"
->
+  tabindex="0">
   <!-- Game Info Header -->
-  <div class="game-info" style="max-width: {GAME_WIDTH}px">
-    <div class="next-fruit" aria-live="polite">
+  <div class="game-info">
+    <div class="next-fruit-section" aria-live="polite">
       <!-- Use aria-live for screen readers to announce changes -->
-      Next: <Fruit fruitIndex={gameState.nextFruit} />
+      <strong class="game-info__label">Next</strong>
+      <div class="next-fruit">
+        <Fruit fruitIndex={gameState.nextFruit} x={75 / 2} y={75 / 2} />
+      </div>
       <!-- Safety check for name -->
     </div>
-    <div class="score" aria-live="polite">
-      Score: {gameState.score}
+    <div class="score-section" aria-live="polite">
+      <strong class="game-info__label">Score</strong>
+      <var class="score">{gameState.score}</var>
     </div>
   </div>
 
@@ -141,8 +144,7 @@
     class="game-container"
     bind:this={gameContainer}
     style="width: {GAME_WIDTH}px; height: {GAME_HEIGHT}px;"
-    aria-hidden="true"
-  >
+    aria-hidden="true">
     <!-- Removed click handler here, moved to wrapper -->
     <!-- aria-hidden because the wrapper handles interaction -->
 
@@ -157,15 +159,13 @@
         class="preview-fruit"
         aria-hidden="true"
         style="transform: translateX({mouseX -
-          (FRUITS[gameState.currentFruit]?.radius ?? 0)}px);"
-      >
+          (FRUITS[gameState.currentFruit]?.radius ?? 0)}px);">
         <!-- Position using transform for potentially better performance -->
         <!-- aria-hidden as it's purely visual feedback -->
         <Fruit
           x={FRUITS[gameState.currentFruit]?.radius ?? 0}
           y={FRUITS[gameState.currentFruit]?.radius ?? 0}
-          fruitIndex={gameState.currentFruit}
-        />
+          fruitIndex={gameState.currentFruit} />
       </div>
     {/if}
 
@@ -184,8 +184,7 @@
       <div
         class="game-over"
         role="alertdialog"
-        aria-labelledby="gameOverHeading"
-      >
+        aria-labelledby="gameOverHeading">
         <h2 id="gameOverHeading">Game Over!</h2>
         <p>Final Score: {gameState.score}</p>
         <!-- Ensure button is focusable -->
@@ -195,19 +194,26 @@
   </div>
 
   <!-- ScoreBoard Component -->
-  <ScoreBoard />
+  <!-- <ScoreBoard /> -->
 </div>
 
 <style>
   .game-wrapper {
+    --color-border: #ddd;
+    --color-background: #f3f3f3;
+    --border-radius: 1em;
+
     display: flex;
-    flex-direction: column;
-    align-items: center;
+    flex-direction: row;
+    align-items: stretch;
     gap: 1rem;
     padding: 1rem;
     user-select: none; /* Prevent text selection */
     touch-action: none; /* Prevent default touch actions like scrolling */
     outline: none; /* Remove default focus outline if desired, but ensure custom focus style */
+    background: var(--color-background);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
   }
 
   /* Add focus style for accessibility */
@@ -217,17 +223,35 @@
 
   .game-info {
     display: flex;
-    justify-content: space-between;
-    width: 100%;
-    font-size: 1.2rem;
+    flex-direction: column;
+    justify-content: space-around;
     font-weight: bold;
+  }
+
+  .game-info__label {
+    font-size: 1em;
+    text-transform: uppercase;
+  }
+
+  .next-fruit {
+    display: block;
+    position: relative;
+    width: 75px;
+    height: 75px;
+  }
+
+  .score {
+    display: block;
+    font-family: monospace;
+    font-style: normal;
+    font-size: 1.5em;
   }
 
   .game-container {
     position: relative;
-    background: #f0f0f0;
-    border: 2px solid #333;
-    border-radius: 8px;
+    background: var(--color-background);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
     overflow: hidden;
     /* Removed cursor: pointer as interaction is on wrapper */
     user-select: none;
@@ -240,7 +264,7 @@
     z-index: 0;
     width: 1px;
     height: 100%;
-    background: red;
+    background: var(--color-border);
   }
 
   .preview-fruit {
