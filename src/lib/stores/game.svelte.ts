@@ -67,7 +67,7 @@ export class GameState {
   }
 
   update() {
-    if (gameState.gameOver) {
+    if (this.gameOver) {
       // Stop loop if component destroyed or game over
       if (this.animationFrameId) {
         cancelAnimationFrame(this.animationFrameId);
@@ -97,7 +97,7 @@ export class GameState {
       console.log("Physics world and event queue created and set.");
     } catch (error) {
       console.error("Failed to initialize Rapier or create world:", error);
-      gameState.setGameOver(true);
+      this.setGameOver(true);
     }
   }
 
@@ -293,11 +293,8 @@ export class GameState {
     this.addFruit(nextIndex, midpoint.x, midpoint.y);
 
     // Update the score
-    gameState.setScore(gameState.score + (nextFruitType.points || 0));
-    console.log(
-      "new game score?",
-      gameState.score + (nextFruitType.points || 0)
-    );
+    this.setScore(this.score + (nextFruitType.points || 0));
+    console.log("new game score?", this.score + (nextFruitType.points || 0));
 
     console.log(
       `Merged handles ${handleA}, ${handleB}. New rigidBodies count: ${this.rigidBodies.length}`
@@ -349,12 +346,12 @@ export class GameState {
   }
 
   checkGameOver(): void {
-    if (gameState.gameOver) return;
+    if (this.gameOver) return;
 
     for (const rb of this.rigidBodies) {
       if (rb.body.isValid() && rb.body.translation().y < GAME_OVER_HEIGHT) {
         console.log("Game Over condition met!");
-        gameState.setGameOver(true);
+        this.setGameOver(true);
         break;
       }
     }
