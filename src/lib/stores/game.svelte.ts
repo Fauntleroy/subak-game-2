@@ -1,18 +1,17 @@
-import { writable, type Writable } from "svelte/store";
 import RAPIER, {
   World,
   RigidBody,
   Collider,
   EventQueue, // Import EventQueue
-  ActiveEvents, // Import ActiveEvents
-} from "@dimforge/rapier2d-compat";
+  ActiveEvents // Import ActiveEvents
+} from '@dimforge/rapier2d-compat';
 import {
   FRUITS, // Assuming FRUITS is typed like: { radius: number; points: number }[]
   GAME_WIDTH,
   GAME_HEIGHT,
   WALL_THICKNESS,
-  GAME_OVER_HEIGHT,
-} from "../constants"; // Ensure constants are correctly typed in their file
+  GAME_OVER_HEIGHT
+} from '../constants'; // Ensure constants are correctly typed in their file
 
 // --- Interfaces remain the same ---
 export interface MergeEffectData {
@@ -80,10 +79,10 @@ export class GameState {
   }
 
   async initPhysics(): Promise<void> {
-    console.log("init physics call");
+    console.log('init physics call');
     try {
       await RAPIER.init();
-      console.log("Rapier initialized");
+      console.log('Rapier initialized');
 
       const gravity = new RAPIER.Vector2(0.0, 196.2);
       this.physicsWorld = new RAPIER.World(gravity);
@@ -94,9 +93,9 @@ export class GameState {
       this.createWall(0, GAME_HEIGHT / 2, WALL_THICKNESS, GAME_HEIGHT);
       this.createWall(GAME_WIDTH, GAME_HEIGHT / 2, WALL_THICKNESS, GAME_HEIGHT);
       this.createWall(GAME_WIDTH / 2, GAME_HEIGHT, GAME_WIDTH, WALL_THICKNESS);
-      console.log("Physics world and event queue created and set.");
+      console.log('Physics world and event queue created and set.');
     } catch (error) {
-      console.error("Failed to initialize Rapier or create world:", error);
+      console.error('Failed to initialize Rapier or create world:', error);
       this.setGameOver(true);
     }
   }
@@ -180,7 +179,7 @@ export class GameState {
           x: rb.body.translation().x,
           y: rb.body.translation().y,
           rotation: rb.body.rotation(),
-          fruitIndex: rb.fruitIndex,
+          fruitIndex: rb.fruitIndex
         };
       })
       .filter((state): state is FruitState => state !== null);
@@ -194,7 +193,7 @@ export class GameState {
         return {
           ...effect,
           scale: 1 + 4 * eased,
-          opacity: 0.5 * (1 - eased),
+          opacity: 0.5 * (1 - eased)
         };
       })
       .filter((effect): effect is MergeEffectData => effect !== null);
@@ -206,7 +205,7 @@ export class GameState {
 
   createWall(x: number, y: number, width: number, height: number): void {
     if (!this.physicsWorld) {
-      console.error("Cannot create wall: Physics world not initialized.");
+      console.error('Cannot create wall: Physics world not initialized.');
       return;
     }
 
@@ -219,7 +218,7 @@ export class GameState {
 
   mergeFruits(handleA: number, handleB: number): void {
     if (!this.physicsWorld) {
-      console.error("Cannot merge fruits: Physics world not initialized.");
+      console.error('Cannot merge fruits: Physics world not initialized.');
       return;
     }
 
@@ -245,7 +244,7 @@ export class GameState {
     const posB = bodyBData.body.translation();
     const midpoint = {
       x: (posA.x + posB.x) / 2,
-      y: (posA.y + posB.y) / 2,
+      y: (posA.y + posB.y) / 2
     };
 
     const nextIndex = bodyAData.fruitIndex + 1;
@@ -284,8 +283,8 @@ export class GameState {
         startTime: performance.now() / 1000,
         duration: 0.5,
         scale: 1,
-        opacity: 0.5,
-      },
+        opacity: 0.5
+      }
     ];
     this.setMergeEffects(newMergeEffects);
 
@@ -294,7 +293,7 @@ export class GameState {
 
     // Update the score
     this.setScore(this.score + (nextFruitType.points || 0));
-    console.log("new game score?", this.score + (nextFruitType.points || 0));
+    console.log('new game score?', this.score + (nextFruitType.points || 0));
 
     console.log(
       `Merged handles ${handleA}, ${handleB}. New rigidBodies count: ${this.rigidBodies.length}`
@@ -303,7 +302,7 @@ export class GameState {
 
   addFruit(fruitIndex: number, x: number, y?: number): void {
     if (!this.physicsWorld) {
-      console.error("Cannot add fruit: Physics world not initialized.");
+      console.error('Cannot add fruit: Physics world not initialized.');
       return;
     }
     const fruit = FRUITS[fruitIndex];
@@ -329,7 +328,7 @@ export class GameState {
     const data: RigidBodyData = {
       body,
       collider,
-      fruitIndex,
+      fruitIndex
     };
 
     // Store reference in our array and map
@@ -342,7 +341,7 @@ export class GameState {
 
     // Update the current and next fruits
     this.setCurrentFruit(this.nextFruit);
-    this.setNextFruit(Math.floor(Math.random() * 3));
+    this.setNextFruit(this.getRandomFruitIndex());
   }
 
   checkGameOver(): void {
@@ -350,7 +349,7 @@ export class GameState {
 
     for (const rb of this.rigidBodies) {
       if (rb.body.isValid() && rb.body.translation().y < GAME_OVER_HEIGHT) {
-        console.log("Game Over condition met!");
+        console.log('Game Over condition met!');
         this.setGameOver(true);
         break;
       }
@@ -378,11 +377,15 @@ export class GameState {
     this.setMergeEffects([]);
     this.setScore(0);
     this.setGameOver(false);
-    this.setCurrentFruit(Math.floor(Math.random() * 3));
-    this.setNextFruit(Math.floor(Math.random() * 3));
+    this.setCurrentFruit(this.getRandomFruitIndex());
+    this.setNextFruit(this.getRandomFruitIndex());
 
     // Event queue might persist or be recreated in initPhysics if needed
     // eventQueue = null; // Or recreate in initPhysics
+  }
+
+  getRandomFruitIndex(limit: number = 5) {
+    return Math.floor(Math.random() * 3);
   }
 
   setScore(newScore: number) {

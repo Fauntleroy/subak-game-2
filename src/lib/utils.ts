@@ -1,4 +1,4 @@
-import { GAME_HEIGHT, GAME_WIDTH, FRUITS } from "./constants";
+import { GAME_HEIGHT, GAME_WIDTH, FRUITS } from './constants';
 
 // Checks if a point is within the game boundaries
 export function isWithinBounds(x: number, y: number): boolean {
@@ -37,13 +37,13 @@ export function getMidpoint(
 ): { x: number; y: number } {
   return {
     x: (x1 + x2) / 2,
-    y: (y1 + y2) / 2,
+    y: (y1 + y2) / 2
   };
 }
 
 // Formats a score number with comma separators
 export function formatScore(score: number): string {
-  return score.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return score.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
 // Gets the next fruit tier based on current fruit index
@@ -53,12 +53,12 @@ export function getNextFruitTier(currentIndex: number): number {
 
 // Formats a date for the scoreboard
 export function formatDate(date: Date): string {
-  return new Date(date).toLocaleString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
+  return new Date(date).toLocaleString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
   });
 }
 
@@ -67,11 +67,6 @@ export function calculateMergePoints(fruitIndex: number): number {
   const basePoints = FRUITS[fruitIndex].points;
   const multiplier = Math.floor(fruitIndex / 2) + 1;
   return basePoints * multiplier;
-}
-
-// Generates a random fruit index for the first few tiers
-export function getRandomInitialFruit(): number {
-  return Math.floor(Math.random() * 3); // Only first 3 fruit types for initial drops
 }
 
 // Checks if a position would result in a valid fruit placement
