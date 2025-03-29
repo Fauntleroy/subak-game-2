@@ -9,20 +9,7 @@
   import MergeEffect from "./MergeEffect.svelte";
 
   // Import Stores and Types
-  import {
-    initPhysics,
-    step,
-    addFruit,
-    resetGame,
-    score,
-    gameOver,
-    currentFruit,
-    nextFruit,
-    fruits,
-    mergeEffects,
-    type FruitState, // Import type for fruit data
-    type MergeEffectData, // Import type for effect data
-  } from "../stores/game";
+  import { gameState } from "../stores/game.svelte";
   import { saveScore } from "../stores/db"; // Assuming saveScore is typed in db.ts
 
   // Import Constants and Types
@@ -49,35 +36,6 @@
   onMount(() => {
     let isActive = true; // Flag to prevent callbacks after component destruction
 
-    const initializeAndRun = async () => {
-      try {
-        await initPhysics();
-        if (!isActive) return; // Check flag after await
-        resetGame();
-        if (!isActive) return; // Check flag after reset
-        animateLoop(); // Start loop only after init and reset
-      } catch (error) {
-        console.error("Failed to initialize physics:", error);
-        // Handle error appropriately, maybe set gameOver state
-        $gameOver = true;
-      }
-    };
-
-    const animateLoop = () => {
-      if (!isActive || $gameOver) {
-        // Stop loop if component destroyed or game over
-        if (animationFrame) {
-          cancelAnimationFrame(animationFrame);
-          animationFrame = undefined;
-        }
-        return;
-      }
-      step(); // Run physics step
-      animationFrame = requestAnimationFrame(animateLoop); // Request next frame
-    };
-
-    initializeAndRun();
-
     // Cleanup function
     return () => {
       isActive = false; // Set flag
@@ -92,12 +50,12 @@
 
   // Save score when game is over
   $effect(() => {
-    if ($gameOver) {
+    if (gameState.gameOver) {
       // Ensure score is a number before saving
-      if (typeof $score === "number") {
-        saveScore($score);
+      if (typeof gameState.score === "number") {
+        saveScore(gameState.score);
       } else {
-        console.error("Attempted to save invalid score:", $score);
+        console.error("Attempted to save invalid score:", gameState.score);
       }
     }
   });
@@ -106,7 +64,7 @@
 
   // Handle clicking/tapping to drop a fruit
   function handleClick(event: MouseEvent | TouchEvent): void {
-    if ($gameOver || isDropping || !gameContainer) return;
+    if (gameState.gameOver || isDropping || !gameContainer) return;
 
     const rect = gameContainer.getBoundingClientRect();
     let clientX: number;
@@ -121,7 +79,7 @@
     }
 
     const x = clientX - rect.left;
-    const currentFruitRadius = FRUITS[$currentFruit]?.radius ?? 0; // Safety check
+    const currentFruitRadius = FRUITS[gameState.currentFruit]?.radius ?? 0; // Safety check
     const clampedX = clamp(
       x,
       currentFruitRadius,
@@ -129,11 +87,15 @@
     );
 
     isDropping = true;
-    addFruit(clampedX, FRUITS[$currentFruit]?.radius ?? 25, $currentFruit); // Use radius for initial Y
+    gameState.addFruit(
+      clampedX,
+      FRUITS[gameState.currentFruit]?.radius ?? 25,
+      gameState.currentFruit
+    ); // Use radius for initial Y
 
     // Select next fruits
-    $currentFruit = $nextFruit;
-    $nextFruit = Math.floor(Math.random() * 3); // Assuming first 3 fruits are droppable
+    gameState.setCurrentFruit(gameState.nextFruit);
+    gameState.setNextFruit(Math.floor(Math.random() * 3));
 
     // Prevent dropping too quickly
     setTimeout(() => {
@@ -143,7 +105,7 @@
 
   // Handle mouse/touch movement to position the preview fruit
   function handlePointerMove(event: MouseEvent | TouchEvent): void {
-    if ($gameOver || isDropping || !gameContainer) return;
+    if (gameState.gameOver || isDropping || !gameContainer) return;
 
     const rect = gameContainer.getBoundingClientRect();
     let clientX: number;
@@ -158,7 +120,7 @@
     }
 
     const x = clientX - rect.left;
-    const currentFruitRadius = FRUITS[$currentFruit]?.radius ?? 0; // Safety check
+    const currentFruitRadius = FRUITS[gameState.currentFruit]?.radius ?? 0; // Safety check
 
     // Update mouseX state, clamped within bounds
     mouseX = clamp(x, currentFruitRadius, GAME_WIDTH - currentFruitRadius);
@@ -168,7 +130,7 @@
   function handleKeyDown(event: KeyboardEvent): void {
     if (event.key === "Enter" || event.key === " ") {
       // Use current mouseX position for keyboard drop
-      const currentFruitRadius = FRUITS[$currentFruit]?.radius ?? 0;
+      const currentFruitRadius = FRUITS[gameState.currentFruit]?.radius ?? 0;
       const dropX = clamp(
         mouseX,
         currentFruitRadius,
@@ -177,13 +139,17 @@
 
       // Simulate a click event at the current mouseX position
       // We need to create a mock event or directly call the drop logic
-      if ($gameOver || isDropping) return;
+      if (gameState.gameOver || isDropping) return;
 
       isDropping = true;
-      addFruit(dropX, FRUITS[$currentFruit]?.radius ?? 25, $currentFruit);
+      gameState.addFruit(
+        dropX,
+        FRUITS[gameState.currentFruit]?.radius ?? 25,
+        gameState.currentFruit
+      );
 
-      $currentFruit = $nextFruit;
-      $nextFruit = Math.floor(Math.random() * 3);
+      gameState.setCurrentFruit(gameState.nextFruit);
+      gameState.setNextFruit(Math.floor(Math.random() * 3));
 
       setTimeout(() => {
         isDropping = false;
@@ -216,11 +182,11 @@
   <div class="game-info" style="max-width: {GAME_WIDTH}px">
     <div class="next-fruit" aria-live="polite">
       <!-- Use aria-live for screen readers to announce changes -->
-      Next: {FRUITS[$nextFruit]?.name ?? "Unknown"}
+      Next: {FRUITS[gameState.nextFruit]?.name ?? "Unknown"}
       <!-- Safety check for name -->
     </div>
     <div class="score" aria-live="polite">
-      Score: {$score}
+      Score: {gameState.score}
     </div>
   </div>
 
@@ -235,24 +201,24 @@
     <!-- aria-hidden because the wrapper handles interaction -->
 
     <!-- Merge effects - Use effect.id as the key -->
-    {#each $mergeEffects as effect (effect.id)}
+    {#each gameState.mergeEffects as effect (effect.id)}
       <MergeEffect {...effect} />
     {/each}
 
     <!-- Preview fruit - Appears when not dropping -->
-    {#if !$gameOver && !isDropping}
+    {#if !gameState.gameOver && !isDropping}
       <div
         class="preview-fruit"
         aria-hidden="true"
         style="transform: translateX({mouseX -
-          (FRUITS[$currentFruit]?.radius ?? 0)}px);"
+          (FRUITS[gameState.currentFruit]?.radius ?? 0)}px);"
       >
         <!-- Position using transform for potentially better performance -->
         <!-- aria-hidden as it's purely visual feedback -->
         <Fruit
-          x={FRUITS[$currentFruit]?.radius ?? 0}
-          y={FRUITS[$currentFruit]?.radius ?? 0}
-          fruitIndex={$currentFruit}
+          x={FRUITS[gameState.currentFruit]?.radius ?? 0}
+          y={FRUITS[gameState.currentFruit]?.radius ?? 0}
+          fruitIndex={gameState.currentFruit}
         />
       </div>
     {/if}
@@ -260,12 +226,12 @@
     <!-- Rendered fruits - Use a unique identifier if available, otherwise index -->
     <!-- Assuming FruitState doesn't have a stable ID, index might be necessary -->
     <!-- If FruitState *does* get an ID (e.g., collider handle), use fruit.id -->
-    {#each $fruits as fruit, i (i)}
+    {#each gameState.fruits as fruit, i (i)}
       <Fruit {...fruit} />
     {/each}
 
     <!-- Game Over Overlay -->
-    {#if $gameOver}
+    {#if gameState.gameOver}
       <!-- Use role="alertdialog" for better semantics -->
       <div
         class="game-over"
@@ -273,9 +239,9 @@
         aria-labelledby="gameOverHeading"
       >
         <h2 id="gameOverHeading">Game Over!</h2>
-        <p>Final Score: {$score}</p>
+        <p>Final Score: {gameState.score}</p>
         <!-- Ensure button is focusable -->
-        <button onclick={resetGame}>Play Again</button>
+        <button onclick={() => gameState.resetGame()}>Play Again</button>
       </div>
     {/if}
   </div>
