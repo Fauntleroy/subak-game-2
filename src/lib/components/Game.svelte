@@ -54,47 +54,32 @@
     }
   });
 
-  // --- Event Handlers ---
-
-  // Handle clicking/tapping to drop a fruit
-  function handleClick(event: MouseEvent | TouchEvent): void {
+  function addCurrentFruit() {
     if (gameState.gameOver || isDropping || !gameContainer) return;
 
-    const rect = gameContainer.getBoundingClientRect();
-    let clientX: number;
-
-    // Handle both mouse and touch events
-    if (event instanceof MouseEvent) {
-      clientX = event.clientX;
-    } else if (event.touches && event.touches.length > 0) {
-      clientX = event.touches[0].clientX;
-    } else {
-      return; // Ignore if event type is unexpected
-    }
-
-    const x = clientX - rect.left;
-    const currentFruitRadius = FRUITS[gameState.currentFruit]?.radius ?? 0; // Safety check
-    const clampedX = clamp(
-      x,
-      currentFruitRadius,
-      GAME_WIDTH - currentFruitRadius
-    );
-
     isDropping = true;
-    gameState.addFruit(
-      clampedX,
-      FRUITS[gameState.currentFruit]?.radius ?? 25,
-      gameState.currentFruit
-    ); // Use radius for initial Y
-
-    // Select next fruits
-    gameState.setCurrentFruit(gameState.nextFruit);
-    gameState.setNextFruit(Math.floor(Math.random() * 3));
+    gameState.addFruit(gameState.currentFruit, mouseX); // Use radius for initial Y
 
     // Prevent dropping too quickly
     setTimeout(() => {
       isDropping = false;
     }, 500); // Cooldown duration
+  }
+
+  // --- Event Handlers ---
+
+  // Handle clicking/tapping to drop a fruit
+  function handleClick(event: MouseEvent | TouchEvent): void {
+    addCurrentFruit();
+  }
+
+  // Handle keyboard interaction for dropping fruit (Accessibility)
+  function handleKeyDown(event: KeyboardEvent): void {
+    if (event.key === "Enter" || event.key === " ") {
+      addCurrentFruit();
+
+      event.preventDefault(); // Prevent default spacebar scroll
+    }
   }
 
   // Handle mouse/touch movement to position the preview fruit
@@ -118,39 +103,6 @@
 
     // Update mouseX state, clamped within bounds
     mouseX = clamp(x, currentFruitRadius, GAME_WIDTH - currentFruitRadius);
-  }
-
-  // Handle keyboard interaction for dropping fruit (Accessibility)
-  function handleKeyDown(event: KeyboardEvent): void {
-    if (event.key === "Enter" || event.key === " ") {
-      // Use current mouseX position for keyboard drop
-      const currentFruitRadius = FRUITS[gameState.currentFruit]?.radius ?? 0;
-      const dropX = clamp(
-        mouseX,
-        currentFruitRadius,
-        GAME_WIDTH - currentFruitRadius
-      );
-
-      // Simulate a click event at the current mouseX position
-      // We need to create a mock event or directly call the drop logic
-      if (gameState.gameOver || isDropping) return;
-
-      isDropping = true;
-      gameState.addFruit(
-        dropX,
-        FRUITS[gameState.currentFruit]?.radius ?? 25,
-        gameState.currentFruit
-      );
-
-      gameState.setCurrentFruit(gameState.nextFruit);
-      gameState.setNextFruit(Math.floor(Math.random() * 3));
-
-      setTimeout(() => {
-        isDropping = false;
-      }, 500);
-
-      event.preventDefault(); // Prevent default spacebar scroll
-    }
   }
 </script>
 

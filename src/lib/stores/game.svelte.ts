@@ -304,7 +304,7 @@ export class GameState {
     );
   }
 
-  addFruit(x: number, y: number, fruitIndex: number): void {
+  addFruit(fruitIndex: number, x: number, y?: number): void {
     if (!this.physicsWorld) {
       console.error("Cannot add fruit: Physics world not initialized.");
       return;
@@ -315,6 +315,7 @@ export class GameState {
       return;
     }
 
+    y = y ?? fruit.radius;
     const bodyDesc = RAPIER.RigidBodyDesc.dynamic()
       .setTranslation(x, y)
       .setLinearDamping(0.2)
@@ -341,6 +342,10 @@ export class GameState {
     // Update the Svelte store for rendering
     const newFruits = [...this.fruits, { x, y, rotation: 0, fruitIndex }];
     this.setFruits(newFruits);
+
+    // Update the current and next fruits
+    this.setCurrentFruit(this.nextFruit);
+    this.setNextFruit(Math.floor(Math.random() * 3));
   }
 
   checkGameOver(): void {
