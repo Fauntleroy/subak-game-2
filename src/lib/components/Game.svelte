@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
+
   // Import Components
   import Fruit from './Fruit.svelte';
   import MergeEffect from './MergeEffect.svelte';
@@ -21,6 +23,23 @@
   // Svelte 5 runes for state
   let isDropping = $state(false);
   let mouseX = $state(GAME_WIDTH / 2);
+  let rect: null | DOMRect = $state(null);
+  let clampedMouseX: number = $derived.by(() => {
+    const leftOffset = rect?.left ?? 0;
+    const x = mouseX - leftOffset;
+    const currentFruitRadius = FRUITS[gameState.currentFruit]?.radius ?? 0; // Safety check
+
+    // Update mouseX state, clamped within bounds
+    return clamp(x, currentFruitRadius, GAME_WIDTH - currentFruitRadius);
+  });
+
+  onMount(() => {
+    if (!gameContainer) {
+      return;
+    }
+
+    rect = gameContainer.getBoundingClientRect();
+  });
 
   // Save score when game is over
   $effect(() => {
@@ -38,7 +57,7 @@
     if (gameState.gameOver || isDropping || !gameContainer) return;
 
     isDropping = true;
-    gameState.addFruit(gameState.currentFruit, mouseX); // Use radius for initial Y
+    gameState.addFruit(gameState.currentFruit, clampedMouseX); // Use radius for initial Y
 
     // Prevent dropping too quickly
     setTimeout(() => {
@@ -66,7 +85,6 @@
   function handlePointerMove(event: MouseEvent | TouchEvent): void {
     if (gameState.gameOver || isDropping || !gameContainer) return;
 
-    const rect = gameContainer.getBoundingClientRect();
     let clientX: number;
 
     // Handle both mouse and touch events
@@ -78,11 +96,8 @@
       return; // Ignore if event type is unexpected
     }
 
-    const x = clientX - rect.left;
-    const currentFruitRadius = FRUITS[gameState.currentFruit]?.radius ?? 0; // Safety check
-
     // Update mouseX state, clamped within bounds
-    mouseX = clamp(x, currentFruitRadius, GAME_WIDTH - currentFruitRadius);
+    mouseX = clientX;
   }
 </script>
 
@@ -138,7 +153,7 @@
       <div
         class="preview-fruit"
         aria-hidden="true"
-        style="transform: translateX({mouseX -
+        style="transform: translateX({clampedMouseX -
           (FRUITS[gameState.currentFruit]?.radius ?? 0)}px);">
         <!-- Position using transform for potentially better performance -->
         <!-- aria-hidden as it's purely visual feedback -->
@@ -149,7 +164,10 @@
       </div>
     {/if}
 
-    <div class="drop-line" style="transform: translateX({mouseX - 1}px);"></div>
+    <div
+      class="drop-line"
+      style="transform: translateX({clampedMouseX - 1}px);">
+    </div>
 
     <!-- Rendered fruits - Use a unique identifier if available, otherwise index -->
     <!-- Assuming FruitState doesn't have a stable ID, index might be necessary -->
