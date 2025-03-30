@@ -385,7 +385,7 @@ export class GameState {
   }
 
   getRandomFruitIndex(limit: number = 5) {
-    return Math.floor(Math.random() * 3);
+    return Math.floor(Math.random() * limit);
   }
 
   setScore(newScore: number) {

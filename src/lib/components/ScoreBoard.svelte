@@ -1,6 +1,6 @@
 <script>
-  import { onMount } from "svelte";
-  import { getHighScores } from "../stores/db";
+  import { onMount } from 'svelte';
+  import { getHighScores } from '../stores/db';
 
   let scores = [];
 
@@ -12,7 +12,7 @@
 <div class="scoreboard">
   <h3>High Scores</h3>
   <div class="scores">
-    {#each scores as { score, date }, i}
+    {#each scores as { score, date }, i (i)}
       <div class="score-entry">
         <span>{i + 1}.</span>
         <span>{score}</span>

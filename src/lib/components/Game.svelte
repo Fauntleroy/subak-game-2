@@ -1,22 +1,17 @@
 <script lang="ts">
-  // Import Svelte utilities and types
-  import { onDestroy, onMount } from 'svelte';
-  import type { Writable } from 'svelte/store'; // Import Writable type if needed elsewhere
-
   // Import Components
   import Fruit from './Fruit.svelte';
-  import ScoreBoard from './ScoreBoard.svelte';
   import MergeEffect from './MergeEffect.svelte';
 
   // Import Stores and Types
   import { gameState } from '../stores/game.svelte';
-  import { saveScore } from '../stores/db'; // Assuming saveScore is typed in db.ts
+  import { saveScore } from '../stores/db';
 
   // Import Constants and Types
-  import { GAME_WIDTH, GAME_HEIGHT, FRUITS } from '../constants'; // Ensure FRUITS is typed in constants.ts
+  import { GAME_WIDTH, GAME_HEIGHT, FRUITS } from '../constants';
 
   // Import Utilities
-  import { clamp } from '../utils'; // Assuming clamp is typed in utils.ts
+  import { clamp } from '../utils';
 
   // --- Component State ---
 
@@ -26,21 +21,6 @@
   // Svelte 5 runes for state
   let isDropping = $state(false);
   let mouseX = $state(GAME_WIDTH / 2);
-
-  // --- Reactive Effects ---
-
-  // Initialize physics and start animation loop on mount
-  // Use onMount/onDestroy for clearer lifecycle management with requestAnimationFrame
-  onMount(() => {
-    let isActive = true; // Flag to prevent callbacks after component destruction
-
-    // Cleanup function
-    return () => {
-      isActive = false; // Set flag
-      console.log('Game component destroyed, animation stopped.');
-      // Optional: Consider if physics world needs explicit cleanup here
-    };
-  });
 
   // Save score when game is over
   $effect(() => {
@@ -69,7 +49,7 @@
   // --- Event Handlers ---
 
   // Handle clicking/tapping to drop a fruit
-  function handleClick(event: MouseEvent | TouchEvent): void {
+  function handleClick(): void {
     addCurrentFruit();
   }
 
@@ -129,7 +109,7 @@
       <!-- Use aria-live for screen readers to announce changes -->
       <strong class="game-info__label">Next</strong>
       <div class="next-fruit">
-        <Fruit fruitIndex={gameState.nextFruit} x={75 / 2} y={75 / 2} />
+        <Fruit fruitIndex={gameState.nextFruit} x={180 / 2} y={180 / 2} />
       </div>
       <!-- Safety check for name -->
     </div>
@@ -236,8 +216,8 @@
   .next-fruit {
     display: block;
     position: relative;
-    width: 75px;
-    height: 75px;
+    width: 180px;
+    height: 180px;
   }
 
   .score {
