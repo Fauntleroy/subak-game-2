@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-
   // Import Components
   import Fruit from './Fruit.svelte';
   import MergeEffect from './MergeEffect.svelte';
@@ -14,31 +12,20 @@
 
   // Import Utilities
   import { clamp } from '../utils';
+  import { useCursorPosition } from '../hooks/useCursorPosition.svelte';
 
-  // --- Component State ---
-
-  // Type the container element reference
-  let gameContainer: HTMLDivElement | null = null;
-
-  // Svelte 5 runes for state
+  let cursorPosition = useCursorPosition();
   let isDropping = $state(false);
-  let mouseX = $state(GAME_WIDTH / 2);
-  let rect: null | DOMRect = $state(null);
+
   let clampedMouseX: number = $derived.by(() => {
-    const leftOffset = rect?.left ?? 0;
-    const x = mouseX - leftOffset;
     const currentFruitRadius = FRUITS[gameState.currentFruit]?.radius ?? 0; // Safety check
 
     // Update mouseX state, clamped within bounds
-    return clamp(x, currentFruitRadius, GAME_WIDTH - currentFruitRadius);
-  });
-
-  onMount(() => {
-    if (!gameContainer) {
-      return;
-    }
-
-    rect = gameContainer.getBoundingClientRect();
+    return clamp(
+      cursorPosition.x,
+      currentFruitRadius,
+      GAME_WIDTH - currentFruitRadius
+    );
   });
 
   // Save score when game is over
@@ -54,7 +41,7 @@
   });
 
   function addCurrentFruit() {
-    if (gameState.gameOver || isDropping || !gameContainer) return;
+    if (gameState.gameOver || isDropping) return;
 
     isDropping = true;
     gameState.addFruit(gameState.currentFruit, clampedMouseX); // Use radius for initial Y
@@ -80,25 +67,6 @@
       event.preventDefault(); // Prevent default spacebar scroll
     }
   }
-
-  // Handle mouse/touch movement to position the preview fruit
-  function handlePointerMove(event: MouseEvent | TouchEvent): void {
-    if (gameState.gameOver || isDropping || !gameContainer) return;
-
-    let clientX: number;
-
-    // Handle both mouse and touch events
-    if (event instanceof MouseEvent) {
-      clientX = event.clientX;
-    } else if (event.touches && event.touches.length > 0) {
-      clientX = event.touches[0].clientX;
-    } else {
-      return; // Ignore if event type is unexpected
-    }
-
-    // Update mouseX state, clamped within bounds
-    mouseX = clientX;
-  }
 </script>
 
 <!--
@@ -112,7 +80,6 @@
 <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 <div
   class="game-wrapper"
-  onpointermove={handlePointerMove}
   onpointerdown={handleClick}
   onkeydown={handleKeyDown}
   role="application"
@@ -137,10 +104,9 @@
   <!-- Game Container -->
   <div
     class="game-container"
-    bind:this={gameContainer}
+    bind:this={cursorPosition.ref}
     style="width: {GAME_WIDTH}px; height: {GAME_HEIGHT}px;"
     aria-hidden="true">
-    <!-- Removed click handler here, moved to wrapper -->
     <!-- aria-hidden because the wrapper handles interaction -->
 
     <!-- Merge effects - Use effect.id as the key -->
