@@ -1,7 +1,5 @@
 import RAPIER, {
   World,
-  RigidBody,
-  Collider,
   EventQueue // Import EventQueue
 } from '@dimforge/rapier2d-compat';
 
@@ -13,6 +11,7 @@ import {
   GAME_HEIGHT,
   WALL_THICKNESS
 } from '../constants'; // Ensure constants are correctly typed in their file
+import { throttle } from '../utils/throttle';
 
 // --- Interfaces remain the same ---
 export interface MergeEffectData {
@@ -50,12 +49,14 @@ export class GameState {
   animationFrameId: number | null = null;
 
   physicsWorld: World | null = null;
-  restrictedArea: any = null;
   eventQueue: EventQueue | null = null;
   colliderMap: Map<number, Fruit> = new Map();
 
+  throttledCheckGameOver?: () => void;
+
   constructor() {
     (async () => {
+      this.throttledCheckGameOver = throttle(this.checkGameOver, 500);
       await this.initPhysics();
       this.resetGame();
       this.update();
@@ -72,7 +73,7 @@ export class GameState {
       return;
     }
     this.stepPhysics(); // Run physics step
-    this.checkGameOver(); // We done here?
+    this.throttledCheckGameOver?.(); // We done here?
     this.animationFrameId = requestAnimationFrame(() => this.update()); // Request next frame
   }
 
@@ -260,7 +261,7 @@ export class GameState {
 
     // 3. Filter the local fruits array *immediately* using handles
     this.fruits = this.fruits.filter((fruit) => {
-      return fruit !== fruitA || fruit !== fruitB;
+      return fruit !== fruitA && fruit !== fruitB;
     });
 
     // Add merge visual effect

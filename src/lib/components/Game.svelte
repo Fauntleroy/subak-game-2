@@ -229,8 +229,7 @@
     left: 0;
     height: 16.666%;
     width: 100%;
-    background: red;
-    opacity: 0.5;
+    border-bottom: 1px solid var(--color-border);
   }
 
   .drop-line {

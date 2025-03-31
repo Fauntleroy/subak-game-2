@@ -70,17 +70,21 @@ export class Fruit {
   }
 
   isOutOfBounds(): boolean {
-    // are we out of bounds NOW?
-    if (
-      this.startOutOfBounds &&
-      performance.now() - this.startOutOfBounds > 500
-    ) {
-      return true;
-    }
-
     // otherwise, set the out of bounds flags
     if (this.body.isValid() && this.body.translation().y < GAME_OVER_HEIGHT) {
-      this.startOutOfBounds = performance.now();
+      // we've been out of bounds for a while.
+      if (
+        this.startOutOfBounds &&
+        performance.now() - this.startOutOfBounds > 1000
+      ) {
+        return true;
+      }
+
+      // mark that we have begun being out of bounds
+      // if not already marked
+      if (!this.startOutOfBounds) {
+        this.startOutOfBounds = performance.now();
+      }
     } else {
       this.startOutOfBounds = null;
     }
