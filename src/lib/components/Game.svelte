@@ -40,11 +40,11 @@
     }
   });
 
-  function addCurrentFruit() {
+  function dropCurrentFruit() {
     if (gameState.gameOver || isDropping) return;
 
     isDropping = true;
-    gameState.addFruit(gameState.currentFruit, clampedMouseX); // Use radius for initial Y
+    gameState.dropFruit(gameState.currentFruit, clampedMouseX); // Use radius for initial Y
 
     // Prevent dropping too quickly
     setTimeout(() => {
@@ -56,13 +56,13 @@
 
   // Handle clicking/tapping to drop a fruit
   function handleClick(): void {
-    addCurrentFruit();
+    dropCurrentFruit();
   }
 
   // Handle keyboard interaction for dropping fruit (Accessibility)
   function handleKeyDown(event: KeyboardEvent): void {
     if (event.key === 'Enter' || event.key === ' ') {
-      addCurrentFruit();
+      dropCurrentFruit();
 
       event.preventDefault(); // Prevent default spacebar scroll
     }

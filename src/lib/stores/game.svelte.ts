@@ -291,7 +291,7 @@ export class GameState {
     );
   }
 
-  addFruit(fruitIndex: number, x: number, y?: number): void {
+  addFruit(fruitIndex: number, x: number, y: number): void {
     if (!this.physicsWorld) {
       console.error('Cannot add fruit: Physics world not initialized.');
       return;
@@ -308,8 +308,11 @@ export class GameState {
     this.fruits = [...this.fruits, fruit];
 
     this.colliderMap.set(fruit.collider.handle, fruit);
+  }
 
-    // Update the current and next fruits
+  dropFruit(fruitIndex: number, x: number): void {
+    const fruitRadius = FRUITS[fruitIndex]?.radius;
+    this.addFruit(fruitIndex, x, fruitRadius);
     this.setCurrentFruit(this.nextFruit);
     this.setNextFruit(this.getRandomFruitIndex());
   }

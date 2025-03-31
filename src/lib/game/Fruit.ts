@@ -20,7 +20,7 @@ export class Fruit {
   public startOutOfBounds: DOMHighResTimeStamp | null = null;
   public outOfBounds: boolean = false;
 
-  constructor(fruitIndex: number, x: number, y?: number, physicsWorld: World) {
+  constructor(fruitIndex: number, x: number, y: number, physicsWorld: World) {
     const fruitData = FRUITS[fruitIndex];
 
     if (!fruitData) {
@@ -33,7 +33,6 @@ export class Fruit {
     this.points = fruitData.points;
     this.physicsWorld = physicsWorld;
 
-    y = y ?? this.radius;
     const bodyDesc = RAPIER.RigidBodyDesc.dynamic()
       .setTranslation(x, y)
       .setLinearDamping(0.2)
