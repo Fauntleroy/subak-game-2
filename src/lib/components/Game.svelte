@@ -109,6 +109,13 @@
     aria-hidden="true">
     <!-- aria-hidden because the wrapper handles interaction -->
 
+    <div class="restricted-area"></div>
+
+    <div
+      class="drop-line"
+      style="transform: translateX({clampedMouseX - 1}px);">
+    </div>
+
     <!-- Merge effects - Use effect.id as the key -->
     {#each gameState.mergeEffects as effect (effect.id)}
       <MergeEffect {...effect} />
@@ -130,15 +137,10 @@
       </div>
     {/if}
 
-    <div
-      class="drop-line"
-      style="transform: translateX({clampedMouseX - 1}px);">
-    </div>
-
     <!-- Rendered fruits - Use a unique identifier if available, otherwise index -->
     <!-- Assuming FruitState doesn't have a stable ID, index might be necessary -->
     <!-- If FruitState *does* get an ID (e.g., collider handle), use fruit.id -->
-    {#each gameState.fruits as fruit, i (i)}
+    {#each gameState.fruitsState as fruit, i (i)}
       <Fruit {...fruit} />
     {/each}
 
@@ -219,6 +221,16 @@
     overflow: hidden;
     /* Removed cursor: pointer as interaction is on wrapper */
     user-select: none;
+  }
+
+  .restricted-area {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 16.666%;
+    width: 100%;
+    background: red;
+    opacity: 0.5;
   }
 
   .drop-line {

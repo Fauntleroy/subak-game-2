@@ -2,7 +2,7 @@ export const GAME_WIDTH = 600;
 export const GAME_HEIGHT = 900;
 export const WALL_THICKNESS = 10;
 export const MERGE_THRESHOLD = 100; // ms to detect if fruits are touching
-export const GAME_OVER_HEIGHT = -50; // Y position above which game ends
+export const GAME_OVER_HEIGHT = (GAME_HEIGHT / 6) * 5; // Y position above which game ends
 
 export const FRUIT_NAMES: string[] = [
   'blueberry',

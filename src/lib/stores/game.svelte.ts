@@ -2,15 +2,16 @@ import RAPIER, {
   World,
   RigidBody,
   Collider,
-  EventQueue, // Import EventQueue
-  ActiveEvents // Import ActiveEvents
+  EventQueue // Import EventQueue
 } from '@dimforge/rapier2d-compat';
+
+import { Fruit } from '../game/Fruit';
+
 import {
   FRUITS, // Assuming FRUITS is typed like: { radius: number; points: number }[]
   GAME_WIDTH,
   GAME_HEIGHT,
-  WALL_THICKNESS,
-  GAME_OVER_HEIGHT
+  WALL_THICKNESS
 } from '../constants'; // Ensure constants are correctly typed in their file
 
 // --- Interfaces remain the same ---
@@ -34,6 +35,7 @@ interface RigidBodyData {
   body: RigidBody;
   collider: Collider;
   fruitIndex: number;
+  destroy: () => void;
 }
 
 // Simple easing function
@@ -44,7 +46,8 @@ export class GameState {
   gameOver: boolean = $state(false);
   currentFruit: number = $state(0);
   nextFruit: number = $state(0);
-  fruits: FruitState[] = $state([]);
+  fruits: Fruit[] = [];
+  fruitsState: FruitState[] = $state([]);
   mergeEffects: MergeEffectData[] = $state([]);
 
   mergeEffectIdCounter: number = 0;
@@ -53,9 +56,10 @@ export class GameState {
   animationFrameId: number | null = null;
 
   physicsWorld: World | null = null;
+  restrictedArea: any = null;
   rigidBodies: RigidBodyData[] = [];
   eventQueue: EventQueue | null = null;
-  colliderMap: Map<number, RigidBodyData> = new Map();
+  colliderMap: Map<number, Fruit> = new Map();
 
   constructor() {
     (async () => {
@@ -75,6 +79,7 @@ export class GameState {
       return;
     }
     this.stepPhysics(); // Run physics step
+    this.checkGameOver(); // We done here?
     this.animationFrameId = requestAnimationFrame(() => this.update()); // Request next frame
   }
 
@@ -93,6 +98,7 @@ export class GameState {
       this.createWall(0, GAME_HEIGHT / 2, WALL_THICKNESS, GAME_HEIGHT);
       this.createWall(GAME_WIDTH, GAME_HEIGHT / 2, WALL_THICKNESS, GAME_HEIGHT);
       this.createWall(GAME_WIDTH / 2, GAME_HEIGHT, GAME_WIDTH, WALL_THICKNESS);
+
       console.log('Physics world and event queue created and set.');
     } catch (error) {
       console.error('Failed to initialize Rapier or create world:', error);
@@ -112,7 +118,7 @@ export class GameState {
     // --- Step 1: Step Physics and Drain Events ---
     this.physicsWorld.step(this.eventQueue); // Step world AND populate event queue
 
-    const mergePairs: { handleA: number; handleB: number }[] = [];
+    const mergePairs: { fruitA: Fruit; fruitB: Fruit }[] = [];
     const mergedHandlesThisStep = new Set<number>(); // Track handles involved in a merge *this step*
 
     this.eventQueue.drainCollisionEvents((handle1, handle2, started) => {
@@ -130,28 +136,33 @@ export class GameState {
       }
 
       // Look up our data associated with the collider handles
-      const dataA = this.colliderMap.get(handle1);
-      const dataB = this.colliderMap.get(handle2);
+      const fruitA = this.colliderMap.get(handle1);
+      const fruitB = this.colliderMap.get(handle2);
 
       // Ensure both colliders correspond to known fruit data and are valid
-      if (!dataA || !dataB || !dataA.body.isValid() || !dataB.body.isValid()) {
+      if (
+        !fruitA ||
+        !fruitB ||
+        !fruitA.body.isValid() ||
+        !fruitB.body.isValid()
+      ) {
         // One or both colliders might not be fruits (e.g., walls) or might have been removed
         return;
       }
 
       // Check if fruits are the same type and not the largest
       if (
-        dataA.fruitIndex === dataB.fruitIndex &&
-        dataA.fruitIndex < FRUITS.length - 1
+        fruitA.fruitIndex === fruitB.fruitIndex &&
+        fruitA.fruitIndex < FRUITS.length - 1
       ) {
         // Queue this pair for merging
         console.log(
-          `Collision Event: Queueing merge for type ${dataA.fruitIndex} (handles ${handle1}, ${handle2})`
+          `Collision Event: Queueing merge for type ${fruitA.fruitIndex} (handles ${handle1}, ${handle2})`
         );
         // Ensure consistent order (optional, but good practice)
         const handleA = Math.min(handle1, handle2);
         const handleB = Math.max(handle1, handle2);
-        mergePairs.push({ handleA, handleB });
+        mergePairs.push({ fruitA, fruitB });
 
         // Mark handles as merged for this step
         mergedHandlesThisStep.add(handleA);
@@ -162,28 +173,28 @@ export class GameState {
     // --- Step 2: Process Queued Merges ---
     if (mergePairs.length > 0) {
       console.log(`Processing ${mergePairs.length} merge pairs from events...`);
-      mergePairs.forEach(({ handleA, handleB }) => {
+      mergePairs.forEach(({ fruitA, fruitB }) => {
         // mergeFruits will handle validity checks internally now
-        this.mergeFruits(handleA, handleB);
+        this.mergeFruits(fruitA, fruitB);
       });
       console.log(
-        `Finished processing merges. Current rigidBodies count: ${this.rigidBodies.length}`
+        `Finished processing merges. Current fruits count: ${this.fruits.length}`
       );
     }
 
     // --- Step 3: Update Rendering State and Effects (mostly unchanged) ---
-    const updatedFruitStates: FruitState[] = this.rigidBodies
-      .map((rb) => {
-        if (!rb.body.isValid()) return null;
+    const updatedFruitStates: FruitState[] = this.fruits
+      .map((fruit) => {
+        if (!fruit.body.isValid()) return null;
         return {
-          x: rb.body.translation().x,
-          y: rb.body.translation().y,
-          rotation: rb.body.rotation(),
-          fruitIndex: rb.fruitIndex
+          x: fruit.body.translation().x,
+          y: fruit.body.translation().y,
+          rotation: fruit.body.rotation(),
+          fruitIndex: fruit.fruitIndex
         };
       })
       .filter((state): state is FruitState => state !== null);
-    this.setFruits(updatedFruitStates);
+    this.setFruitsState(updatedFruitStates);
 
     const newMergeEffects = this.mergeEffects
       .map((effect: MergeEffectData) => {
@@ -198,9 +209,6 @@ export class GameState {
       })
       .filter((effect): effect is MergeEffectData => effect !== null);
     this.setMergeEffects(newMergeEffects);
-
-    // --- Step 4: Check Game Over (unchanged) ---
-    this.checkGameOver();
   }
 
   createWall(x: number, y: number, width: number, height: number): void {
@@ -216,38 +224,29 @@ export class GameState {
     this.physicsWorld.createCollider(colliderDesc, body);
   }
 
-  mergeFruits(handleA: number, handleB: number): void {
+  mergeFruits(fruitA: Fruit, fruitB: Fruit): void {
     if (!this.physicsWorld) {
       console.error('Cannot merge fruits: Physics world not initialized.');
       return;
     }
 
-    // Get data from map using handles
-    const bodyAData = this.colliderMap.get(handleA);
-    const bodyBData = this.colliderMap.get(handleB);
-
     // Check if data exists and bodies are valid
-    if (
-      !bodyAData ||
-      !bodyBData ||
-      !bodyAData.body.isValid() ||
-      !bodyBData.body.isValid()
-    ) {
+    if (!fruitA.body.isValid() || !fruitB.body.isValid()) {
       console.warn(
-        `Attempted to merge handles ${handleA}, ${handleB}, but data/body was missing or invalid. Might have been merged already.`
+        `Attempted to merge handles ${fruitA.body.handle}, ${fruitB.body.handle}, but data/body was missing or invalid. Might have been merged already.`
       );
       return;
     }
 
     // --- Rest of the merge logic is similar, using bodyAData/bodyBData ---
-    const posA = bodyAData.body.translation();
-    const posB = bodyBData.body.translation();
+    const posA = fruitA.body.translation();
+    const posB = fruitB.body.translation();
     const midpoint = {
       x: (posA.x + posB.x) / 2,
       y: (posA.y + posB.y) / 2
     };
 
-    const nextIndex = bodyAData.fruitIndex + 1;
+    const nextIndex = fruitA.fruitIndex + 1;
     const nextFruitType = FRUITS[nextIndex];
     if (!nextFruitType) {
       console.error(`Invalid next fruit index during merge: ${nextIndex}`);
@@ -255,22 +254,18 @@ export class GameState {
     }
     const newFruitRadius = nextFruitType.radius;
 
-    // --- Critical Section: Update Physics World, Map, and Local Array ---
-
     // 1. Remove the old bodies from the physics world *first*
-    this.physicsWorld.removeRigidBody(bodyAData.body); // Use data reference
-    this.physicsWorld.removeRigidBody(bodyBData.body); // Use data reference
+    fruitA.destroy();
+    fruitB.destroy();
 
     // 2. Remove from collider map
-    this.colliderMap.delete(handleA);
-    this.colliderMap.delete(handleB);
+    this.colliderMap.delete(fruitA.body.handle);
+    this.colliderMap.delete(fruitB.body.handle);
 
     // 3. Filter the local rigidBodies array *immediately* using handles
-    this.rigidBodies = this.rigidBodies.filter(
-      (rb) => rb.collider.handle !== handleA && rb.collider.handle !== handleB
-    );
-
-    // --- End Critical Section ---
+    this.fruits = this.fruits.filter((fruit) => {
+      return fruit !== fruitA || fruit !== fruitB;
+    });
 
     // Add merge visual effect
     const newMergeEffects = [
@@ -293,10 +288,9 @@ export class GameState {
 
     // Update the score
     this.setScore(this.score + (nextFruitType.points || 0));
-    console.log('new game score?', this.score + (nextFruitType.points || 0));
 
     console.log(
-      `Merged handles ${handleA}, ${handleB}. New rigidBodies count: ${this.rigidBodies.length}`
+      `Merged handles ${fruitA.body.handle}, ${fruitB.body.handle}. New fruits count: ${this.fruits.length}`
     );
   }
 
@@ -305,39 +299,18 @@ export class GameState {
       console.error('Cannot add fruit: Physics world not initialized.');
       return;
     }
-    const fruit = FRUITS[fruitIndex];
+
+    const fruit = new Fruit(fruitIndex, x, y, this.physicsWorld);
+
     if (!fruit) {
       console.error(`Invalid fruitIndex: ${fruitIndex}`);
       return;
     }
 
-    y = y ?? fruit.radius;
-    const bodyDesc = RAPIER.RigidBodyDesc.dynamic()
-      .setTranslation(x, y)
-      .setLinearDamping(0.2)
-      .setAngularDamping(0.4);
-    const body = this.physicsWorld.createRigidBody(bodyDesc);
+    // update current state of fruits
+    this.fruits = [...this.fruits, fruit];
 
-    const colliderDesc = RAPIER.ColliderDesc.ball(fruit.radius)
-      .setRestitution(0.3)
-      .setFriction(0.5)
-      // *** Enable collision events for this collider ***
-      .setActiveEvents(ActiveEvents.COLLISION_EVENTS);
-    const collider = this.physicsWorld.createCollider(colliderDesc, body);
-
-    const data: RigidBodyData = {
-      body,
-      collider,
-      fruitIndex
-    };
-
-    // Store reference in our array and map
-    this.rigidBodies.push(data);
-    this.colliderMap.set(collider.handle, data); // Map handle to data
-
-    // Update the Svelte store for rendering
-    const newFruits = [...this.fruits, { x, y, rotation: 0, fruitIndex }];
-    this.setFruits(newFruits);
+    this.colliderMap.set(fruit.collider.handle, fruit);
 
     // Update the current and next fruits
     this.setCurrentFruit(this.nextFruit);
@@ -347,11 +320,10 @@ export class GameState {
   checkGameOver(): void {
     if (this.gameOver) return;
 
-    for (const rb of this.rigidBodies) {
-      if (rb.body.isValid() && rb.body.translation().y < GAME_OVER_HEIGHT) {
+    for (const fruit of this.fruits) {
+      if (fruit.isOutOfBounds()) {
         console.log('Game Over condition met!');
         this.setGameOver(true);
-        break;
       }
     }
   }
@@ -359,21 +331,16 @@ export class GameState {
   /** Resets the game state, physics world, and clears the map */
   resetGame(): void {
     if (this.physicsWorld) {
-      this.rigidBodies.forEach((rb) => {
-        if (rb.body.isValid()) {
-          this.physicsWorld.removeRigidBody(rb.body);
-        }
-      });
+      this.fruits.forEach((fruit) => fruit.destroy());
     }
 
     // Clear internal state
-    this.rigidBodies = [];
-    this.colliderMap.clear(); // Clear the map
+    this.fruits = [];
     this.lastTime = 0;
     this.mergeEffectIdCounter = 0;
 
     // Reset Svelte stores
-    this.setFruits([]);
+    this.setFruitsState([]);
     this.setMergeEffects([]);
     this.setScore(0);
     this.setGameOver(false);
@@ -404,8 +371,8 @@ export class GameState {
     this.nextFruit = newNextFruit;
   }
 
-  setFruits(newFruits: FruitState[]) {
-    this.fruits = newFruits;
+  setFruitsState(newFruits: FruitState[]) {
+    this.fruitsState = newFruits;
   }
 
   setMergeEffects(newMergeEffects: MergeEffectData[]) {
