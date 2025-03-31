@@ -16,7 +16,7 @@
  * @param {number} waitMs The number of milliseconds to throttle invocations to.
  * @returns {Function} Returns the new throttled function.
  */
-export function throttle<T extends (...args: unknown[]) => never>(
+export function throttle<T extends (...args: unknown[]) => unknown>(
   func: T,
   waitMs: number
 ): (...args: Parameters<T>) => ReturnType<T> | undefined {
@@ -34,7 +34,7 @@ export function throttle<T extends (...args: unknown[]) => never>(
     if (currentTime - lastExecutionTime >= waitMs) {
       lastExecutionTime = currentTime; // Record the time of this execution
       // Execute the original function with the correct 'this' context and arguments
-      lastResult = func.apply(this, args);
+      lastResult = func.apply(this, args) as ReturnType<T>;
       return lastResult;
     }
 
