@@ -31,12 +31,6 @@ export interface FruitState {
   rotation: number;
   fruitIndex: number;
 }
-interface RigidBodyData {
-  body: RigidBody;
-  collider: Collider;
-  fruitIndex: number;
-  destroy: () => void;
-}
 
 // Simple easing function
 const easeOutQuad = (t: number): number => t * (2 - t);
@@ -57,7 +51,6 @@ export class GameState {
 
   physicsWorld: World | null = null;
   restrictedArea: any = null;
-  rigidBodies: RigidBodyData[] = [];
   eventQueue: EventQueue | null = null;
   colliderMap: Map<number, Fruit> = new Map();
 
@@ -84,10 +77,10 @@ export class GameState {
   }
 
   async initPhysics(): Promise<void> {
-    console.log('init physics call');
+    console.log('Starting Rapier physics engine...');
     try {
       await RAPIER.init();
-      console.log('Rapier initialized');
+      console.log('Rapier physics initialized.');
 
       const gravity = new RAPIER.Vector2(0.0, 196.2);
       this.physicsWorld = new RAPIER.World(gravity);
@@ -101,7 +94,10 @@ export class GameState {
 
       console.log('Physics world and event queue created and set.');
     } catch (error) {
-      console.error('Failed to initialize Rapier or create world:', error);
+      console.error(
+        'Failed to initialize Rapier or create physics world:',
+        error
+      );
       this.setGameOver(true);
     }
   }
@@ -262,7 +258,7 @@ export class GameState {
     this.colliderMap.delete(fruitA.body.handle);
     this.colliderMap.delete(fruitB.body.handle);
 
-    // 3. Filter the local rigidBodies array *immediately* using handles
+    // 3. Filter the local fruits array *immediately* using handles
     this.fruits = this.fruits.filter((fruit) => {
       return fruit !== fruitA || fruit !== fruitB;
     });
