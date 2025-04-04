@@ -220,6 +220,7 @@
     justify-content: space-around;
     gap: 1em;
     padding: 1em;
+    border-right: 1px solid var(--color-border);
   }
 
   .game-info__label {
@@ -247,7 +248,6 @@
     aspect-ratio: 2 / 3;
     position: relative;
     background: var(--color-background);
-    border: 1px solid var(--color-border);
     border-radius: var(--border-radius);
     /* Removed cursor: pointer as interaction is on wrapper */
     user-select: none;
