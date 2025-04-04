@@ -126,10 +126,7 @@
 
     <div class="restricted-area"></div>
 
-    <div
-      class="drop-line"
-      style="transform: translateX({clampedMouseX - 1}px);">
-    </div>
+    <div class="drop-line" style:translate="{clampedMouseX - 1}px 0"></div>
 
     <!-- Merge effects - Use effect.id as the key -->
     {#each gameState.mergeEffects as effect (effect.id)}
@@ -143,9 +140,7 @@
       <div
         class="preview-fruit"
         aria-hidden="true"
-        style="transform: translateX({clampedMouseX -
-          currentFruit.radius * scale}px);">
-        <!-- Position using transform for potentially better performance -->
+        style:translate="{clampedMouseX - currentFruit.radius * scale}px 0">
         <!-- aria-hidden as it's purely visual feedback -->
         <GameEntity x={currentFruit.radius} y={currentFruit.radius} {scale}>
           <Fruit {...currentFruit} radius={currentFruit.radius * scale} />
