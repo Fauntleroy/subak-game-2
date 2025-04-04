@@ -203,6 +203,10 @@
 
   .game-header {
     font-weight: bold;
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    padding: 1em;
   }
 
   .game-info__label {
