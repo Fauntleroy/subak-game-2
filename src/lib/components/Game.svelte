@@ -14,6 +14,8 @@
   import { clamp } from '../utils';
   import { useCursorPosition } from '../hooks/useCursorPosition.svelte';
   import { useBoundingRect } from '../hooks/useBoundingRect.svelte';
+  import CircleOfEvolution from './CircleOfEvolution.svelte';
+  import GameEntity from './GameEntity.svelte';
 
   let gameRef = $state<HTMLElement | null>(null);
   let gameBoundingRect = useBoundingRect();
@@ -101,13 +103,7 @@
       <!-- Use aria-live for screen readers to announce changes -->
       <strong class="game-info__label">Next</strong>
       <div class="next-fruit">
-        <Fruit
-          fruitIndex={gameState.nextFruit}
-          x={(180 / 2) * scale}
-          y={(180 / 2) * scale}
-          {scale}
-          size="50px"
-          position="static" />
+        <Fruit fruitIndex={gameState.nextFruit} {scale} size="50px" />
       </div>
       <!-- Safety check for name -->
     </div>
@@ -115,6 +111,7 @@
       <strong class="game-info__label">Score</strong>
       <var class="score">{gameState.score}</var>
     </div>
+    <section><CircleOfEvolution /></section>
   </div>
 
   <!-- Game Container -->
@@ -130,11 +127,9 @@
 
     <!-- Merge effects - Use effect.id as the key -->
     {#each gameState.mergeEffects as effect (effect.id)}
-      <MergeEffect
-        {...effect}
-        x={effect.x * scale}
-        y={effect.y * scale}
-        radius={effect.radius * scale} />
+      <GameEntity x={effect.x} y={effect.y} {scale}>
+        <MergeEffect {...effect} radius={effect.radius * scale} />
+      </GameEntity>
     {/each}
 
     <!-- Preview fruit - Appears when not dropping -->
@@ -146,11 +141,12 @@
           FRUITS[gameState.currentFruit]?.radius * scale}px);">
         <!-- Position using transform for potentially better performance -->
         <!-- aria-hidden as it's purely visual feedback -->
-        <Fruit
+        <GameEntity
           x={FRUITS[gameState.currentFruit]?.radius}
           y={FRUITS[gameState.currentFruit]?.radius}
-          fruitIndex={gameState.currentFruit}
-          {scale} />
+          {scale}>
+          <Fruit fruitIndex={gameState.currentFruit} {scale} />
+        </GameEntity>
       </div>
     {/if}
 
@@ -158,7 +154,9 @@
     <!-- Assuming FruitState doesn't have a stable ID, index might be necessary -->
     <!-- If FruitState *does* get an ID (e.g., collider handle), use fruit.id -->
     {#each gameState.fruitsState as fruit, i (i)}
-      <Fruit {...fruit} {scale} />
+      <GameEntity x={fruit.x} y={fruit.y} rotation={fruit.rotation} {scale}>
+        <Fruit {...fruit} {scale} />
+      </GameEntity>
     {/each}
 
     <!-- Game Over Overlay -->
