@@ -1,15 +1,11 @@
 <script>
-  import { FRUITS } from '../constants';
-
-  let { size = null, fruitIndex = 0, scale = 1 } = $props();
-
-  let fruit = $derived(FRUITS[fruitIndex]);
+  let { radius, name } = $props();
 </script>
 
 <div
   class="fruit"
-  style:width={size ?? `${fruit.radius * 2 * scale}px`}
-  style:background-image={`url('/fruits/${fruit.name}.png')`}>
+  style:width="{radius * 2}px"
+  style:background-image="url('/fruits/{name}.png')">
 </div>
 
 <style>

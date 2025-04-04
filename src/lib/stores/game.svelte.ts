@@ -37,8 +37,8 @@ const easeOutQuad = (t: number): number => t * (2 - t);
 export class GameState {
   score: number = $state(0);
   gameOver: boolean = $state(false);
-  currentFruit: number = $state(0);
-  nextFruit: number = $state(0);
+  currentFruitIndex: number = $state(0);
+  nextFruitIndex: number = $state(0);
   fruits: Fruit[] = [];
   fruitsState: FruitState[] = $state([]);
   mergeEffects: MergeEffectData[] = $state([]);
@@ -314,8 +314,8 @@ export class GameState {
   dropFruit(fruitIndex: number, x: number): void {
     const fruitRadius = FRUITS[fruitIndex]?.radius;
     this.addFruit(fruitIndex, x, fruitRadius);
-    this.setCurrentFruit(this.nextFruit);
-    this.setNextFruit(this.getRandomFruitIndex());
+    this.setCurrentFruitIndex(this.nextFruitIndex);
+    this.setNextFruitIndex(this.getRandomFruitIndex());
   }
 
   checkGameOver(): void {
@@ -345,8 +345,8 @@ export class GameState {
     this.setMergeEffects([]);
     this.setScore(0);
     this.setGameOver(false);
-    this.setCurrentFruit(this.getRandomFruitIndex());
-    this.setNextFruit(this.getRandomFruitIndex());
+    this.setCurrentFruitIndex(this.getRandomFruitIndex());
+    this.setNextFruitIndex(this.getRandomFruitIndex());
 
     // Event queue might persist or be recreated in initPhysics if needed
     // eventQueue = null; // Or recreate in initPhysics
@@ -364,12 +364,12 @@ export class GameState {
     this.gameOver = newGameOver;
   }
 
-  setCurrentFruit(newCurrentFruit: number) {
-    this.currentFruit = newCurrentFruit;
+  setCurrentFruitIndex(newCurrentFruitIndex: number) {
+    this.currentFruitIndex = newCurrentFruitIndex;
   }
 
-  setNextFruit(newNextFruit: number) {
-    this.nextFruit = newNextFruit;
+  setNextFruitIndex(newNextFruitIndex: number) {
+    this.nextFruitIndex = newNextFruitIndex;
   }
 
   setFruitsState(newFruits: FruitState[]) {

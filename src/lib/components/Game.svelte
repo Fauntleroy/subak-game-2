@@ -17,6 +17,7 @@
   import CircleOfEvolution from './CircleOfEvolution.svelte';
   import GameEntity from './GameEntity.svelte';
 
+  // Find game area width and cursor position
   let gameRef = $state<HTMLElement | null>(null);
   let gameBoundingRect = useBoundingRect();
   let cursorPosition = useCursorPosition();
@@ -26,6 +27,11 @@
     gameBoundingRect.ref = gameRef;
   });
 
+  // Find fruit data
+  let currentFruit = $derived(FRUITS[gameState.currentFruitIndex]);
+  let nextFruit = $derived(FRUITS[gameState.nextFruitIndex]);
+
+  // Find game scale
   let scale = $derived.by(() => {
     const gameWidth = gameBoundingRect?.rect?.width || GAME_WIDTH;
     return gameWidth / GAME_WIDTH;
@@ -34,7 +40,7 @@
   let isDropping = $state(false);
 
   let clampedMouseX: number = $derived.by(() => {
-    const currentFruitRadius = FRUITS[gameState.currentFruit]?.radius ?? 0; // Safety check
+    const currentFruitRadius = currentFruit?.radius ?? 0; // Safety check
     const scaledRadius = currentFruitRadius * scale;
     const scaledWidth = GAME_WIDTH * scale;
     // Update mouseX state, clamped within bounds
@@ -57,7 +63,7 @@
     if (gameState.gameOver || isDropping) return;
 
     isDropping = true;
-    gameState.dropFruit(gameState.currentFruit, clampedMouseX / scale); // Use radius for initial Y
+    gameState.dropFruit(gameState.currentFruitIndex, clampedMouseX / scale); // Use radius for initial Y
 
     // Prevent dropping too quickly
     setTimeout(() => {
@@ -103,7 +109,7 @@
       <!-- Use aria-live for screen readers to announce changes -->
       <strong class="game-info__label">Next</strong>
       <div class="next-fruit">
-        <Fruit fruitIndex={gameState.nextFruit} {scale} size="50px" />
+        <Fruit radius={25} name={nextFruit.name} />
       </div>
       <!-- Safety check for name -->
     </div>
@@ -133,19 +139,16 @@
     {/each}
 
     <!-- Preview fruit - Appears when not dropping -->
-    {#if !gameState.gameOver && !isDropping}
+    {#if !gameState.gameOver && !isDropping && currentFruit}
       <div
         class="preview-fruit"
         aria-hidden="true"
         style="transform: translateX({clampedMouseX -
-          FRUITS[gameState.currentFruit]?.radius * scale}px);">
+          currentFruit.radius * scale}px);">
         <!-- Position using transform for potentially better performance -->
         <!-- aria-hidden as it's purely visual feedback -->
-        <GameEntity
-          x={FRUITS[gameState.currentFruit]?.radius}
-          y={FRUITS[gameState.currentFruit]?.radius}
-          {scale}>
-          <Fruit fruitIndex={gameState.currentFruit} {scale} />
+        <GameEntity x={currentFruit.radius} y={currentFruit.radius} {scale}>
+          <Fruit {...currentFruit} radius={currentFruit.radius * scale} />
         </GameEntity>
       </div>
     {/if}
@@ -153,9 +156,14 @@
     <!-- Rendered fruits - Use a unique identifier if available, otherwise index -->
     <!-- Assuming FruitState doesn't have a stable ID, index might be necessary -->
     <!-- If FruitState *does* get an ID (e.g., collider handle), use fruit.id -->
-    {#each gameState.fruitsState as fruit, i (i)}
-      <GameEntity x={fruit.x} y={fruit.y} rotation={fruit.rotation} {scale}>
-        <Fruit {...fruit} {scale} />
+    {#each gameState.fruitsState as fruitState, i (i)}
+      {@const fruit = FRUITS[fruitState.fruitIndex]}
+      <GameEntity
+        x={fruitState.x}
+        y={fruitState.y}
+        rotation={fruitState.rotation}
+        {scale}>
+        <Fruit {...fruit} radius={fruit.radius * scale} />
       </GameEntity>
     {/each}
 
@@ -207,6 +215,8 @@
     font-weight: bold;
     display: flex;
     flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
     gap: 1em;
     padding: 1em;
   }
