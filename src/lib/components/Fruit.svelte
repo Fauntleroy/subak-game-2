@@ -1,34 +1,35 @@
 <script>
   import { FRUITS } from '../constants';
 
-  let { x = 0, y = 0, rotation = 0, fruitIndex = 0 } = $props();
+  let {
+    x = 0,
+    y = 0,
+    size = null,
+    rotation = 0,
+    fruitIndex = 0,
+    scale = 1,
+    position = 'absolute'
+  } = $props();
 
   let fruit = $derived(FRUITS[fruitIndex]);
+  const translateX = $derived(x * scale - fruit.radius * scale);
+  const translateY = $derived(y * scale - fruit.radius * scale);
+  const isStatic = position === 'static';
 </script>
 
 <div
   class="fruit"
-  style="
-    --x: {x}px;
-    --y: {y}px;
-    --rotation: {rotation}rad;
-    --size: {fruit.radius * 2}px;
-    --color: {fruit.color};
-    background-image: url('/fruits/{fruit.name}.png');
-    background-size: 100%;
-  ">
+  style:position
+  style:translate={isStatic ? '' : `${translateX}px ${translateY}px`}
+  style:rotate={`${rotation}rad`}
+  style:width={size ?? `${fruit.radius * 2 * scale}px`}
+  style:background-image={`url('/fruits/${fruit.name}.png')`}>
 </div>
 
 <style>
   .fruit {
-    position: absolute;
-    width: var(--size);
-    height: var(--size);
-    transform: translate(
-        calc(var(--x) - var(--size) / 2),
-        calc(var(--y) - var(--size) / 2)
-      )
-      rotate(var(--rotation));
+    aspect-ratio: 1 / 1;
     user-select: none;
+    background-size: 100%;
   }
 </style>

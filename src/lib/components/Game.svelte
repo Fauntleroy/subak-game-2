@@ -8,24 +8,35 @@
   import { saveScore } from '../stores/db';
 
   // Import Constants and Types
-  import { GAME_WIDTH, GAME_HEIGHT, FRUITS } from '../constants';
+  import { GAME_WIDTH, FRUITS } from '../constants';
 
   // Import Utilities
   import { clamp } from '../utils';
   import { useCursorPosition } from '../hooks/useCursorPosition.svelte';
+  import { useBoundingRect } from '../hooks/useBoundingRect.svelte';
 
+  let gameRef = $state<HTMLElement | null>(null);
+  let gameBoundingRect = useBoundingRect();
   let cursorPosition = useCursorPosition();
+
+  $effect(() => {
+    cursorPosition.ref = gameRef;
+    gameBoundingRect.ref = gameRef;
+  });
+
+  let scale = $derived.by(() => {
+    const gameWidth = gameBoundingRect?.rect?.width || GAME_WIDTH;
+    return gameWidth / GAME_WIDTH;
+  });
+
   let isDropping = $state(false);
 
   let clampedMouseX: number = $derived.by(() => {
     const currentFruitRadius = FRUITS[gameState.currentFruit]?.radius ?? 0; // Safety check
-
+    const scaledRadius = currentFruitRadius * scale;
+    const scaledWidth = GAME_WIDTH * scale;
     // Update mouseX state, clamped within bounds
-    return clamp(
-      cursorPosition.x,
-      currentFruitRadius,
-      GAME_WIDTH - currentFruitRadius
-    );
+    return clamp(cursorPosition.x, scaledRadius, scaledWidth - scaledRadius);
   });
 
   // Save score when game is over
@@ -44,7 +55,7 @@
     if (gameState.gameOver || isDropping) return;
 
     isDropping = true;
-    gameState.dropFruit(gameState.currentFruit, clampedMouseX); // Use radius for initial Y
+    gameState.dropFruit(gameState.currentFruit, clampedMouseX / scale); // Use radius for initial Y
 
     // Prevent dropping too quickly
     setTimeout(() => {
@@ -90,7 +101,13 @@
       <!-- Use aria-live for screen readers to announce changes -->
       <strong class="game-info__label">Next</strong>
       <div class="next-fruit">
-        <Fruit fruitIndex={gameState.nextFruit} x={180 / 2} y={180 / 2} />
+        <Fruit
+          fruitIndex={gameState.nextFruit}
+          x={(180 / 2) * scale}
+          y={(180 / 2) * scale}
+          {scale}
+          size="50px"
+          position="static" />
       </div>
       <!-- Safety check for name -->
     </div>
@@ -101,11 +118,7 @@
   </div>
 
   <!-- Game Container -->
-  <div
-    class="gameplay-area"
-    bind:this={cursorPosition.ref}
-    style="aspect-ratio: {GAME_WIDTH} / {GAME_HEIGHT}"
-    aria-hidden="true">
+  <div class="gameplay-area" bind:this={gameRef} aria-hidden="true">
     <!-- aria-hidden because the wrapper handles interaction -->
 
     <div class="restricted-area"></div>
@@ -126,13 +139,14 @@
         class="preview-fruit"
         aria-hidden="true"
         style="transform: translateX({clampedMouseX -
-          (FRUITS[gameState.currentFruit]?.radius ?? 0)}px);">
+          FRUITS[gameState.currentFruit]?.radius * scale}px);">
         <!-- Position using transform for potentially better performance -->
         <!-- aria-hidden as it's purely visual feedback -->
         <Fruit
-          x={FRUITS[gameState.currentFruit]?.radius ?? 0}
-          y={FRUITS[gameState.currentFruit]?.radius ?? 0}
-          fruitIndex={gameState.currentFruit} />
+          x={FRUITS[gameState.currentFruit]?.radius}
+          y={FRUITS[gameState.currentFruit]?.radius}
+          fruitIndex={gameState.currentFruit}
+          {scale} />
       </div>
     {/if}
 
@@ -140,7 +154,7 @@
     <!-- Assuming FruitState doesn't have a stable ID, index might be necessary -->
     <!-- If FruitState *does* get an ID (e.g., collider handle), use fruit.id -->
     {#each gameState.fruitsState as fruit, i (i)}
-      <Fruit {...fruit} />
+      <Fruit {...fruit} {scale} />
     {/each}
 
     <!-- Game Over Overlay -->
@@ -197,10 +211,9 @@
   }
 
   .next-fruit {
-    display: block;
-    position: relative;
-    width: 180px;
-    height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .score {
@@ -221,6 +234,7 @@
     border-radius: var(--border-radius);
     /* Removed cursor: pointer as interaction is on wrapper */
     user-select: none;
+    overflow: hidden;
   }
 
   .restricted-area {
