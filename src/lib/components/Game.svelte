@@ -79,14 +79,13 @@
 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 <div
-  class="game-wrapper"
+  class="game"
   onpointerdown={handleClick}
   onkeydown={handleKeyDown}
   role="application"
   aria-label="Fruit merging game area"
   tabindex="0">
-  <!-- Game Info Header -->
-  <div class="game-info">
+  <div class="game-header">
     <div class="next-fruit-section" aria-live="polite">
       <!-- Use aria-live for screen readers to announce changes -->
       <strong class="game-info__label">Next</strong>
@@ -103,9 +102,9 @@
 
   <!-- Game Container -->
   <div
-    class="game-container"
+    class="gameplay-area"
     bind:this={cursorPosition.ref}
-    style="width: {GAME_WIDTH}px; height: {GAME_HEIGHT}px;"
+    style="aspect-ratio: {GAME_WIDTH} / {GAME_HEIGHT}"
     aria-hidden="true">
     <!-- aria-hidden because the wrapper handles interaction -->
 
@@ -164,33 +163,31 @@
 </div>
 
 <style>
-  .game-wrapper {
+  .game {
     --color-border: #ddd;
     --color-background: #f3f3f3;
+    --color-foreground: #333;
     --border-radius: 1em;
 
-    display: flex;
-    flex-direction: row;
-    align-items: stretch;
-    gap: 1rem;
-    padding: 1rem;
+    display: grid;
+    grid-template-columns: minmax(100px, 150px) minmax(300px, 600px);
+    width: fit-content;
+
     user-select: none; /* Prevent text selection */
     touch-action: none; /* Prevent default touch actions like scrolling */
     outline: none; /* Remove default focus outline if desired, but ensure custom focus style */
     background: var(--color-background);
+    color: var(--color-foreground);
     border: 1px solid var(--color-border);
     border-radius: var(--border-radius);
   }
 
   /* Add focus style for accessibility */
-  .game-wrapper:focus-visible {
+  .game:focus-visible {
     box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.6); /* Example focus ring */
   }
 
-  .game-info {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
+  .game-header {
     font-weight: bold;
   }
 
@@ -213,12 +210,15 @@
     font-size: 1.5em;
   }
 
-  .game-container {
+  .gameplay-area {
+    min-width: 0px;
+    flex-grow: 1;
+    flex-shrink: 1;
+    aspect-ratio: 2 / 3;
     position: relative;
     background: var(--color-background);
     border: 1px solid var(--color-border);
     border-radius: var(--border-radius);
-    overflow: hidden;
     /* Removed cursor: pointer as interaction is on wrapper */
     user-select: none;
   }

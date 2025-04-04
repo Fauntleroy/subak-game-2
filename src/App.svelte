@@ -8,15 +8,10 @@
 
 <style>
   main {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
     min-height: 100vh;
-  }
-
-  :global(body) {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-      Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+    min-width: 100vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 </style>
