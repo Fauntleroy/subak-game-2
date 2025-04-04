@@ -130,7 +130,7 @@
 
     <!-- Merge effects - Use effect.id as the key -->
     {#each gameState.mergeEffects as effect (effect.id)}
-      <MergeEffect {...effect} />
+      <MergeEffect {...effect} positionScale={scale} />
     {/each}
 
     <!-- Preview fruit - Appears when not dropping -->

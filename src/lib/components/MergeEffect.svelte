@@ -1,17 +1,17 @@
 <script>
-  let { x, y, radius, scale, opacity } = $props();
+  let { x, y, radius, scale, opacity, positionScale = 1 } = $props();
 </script>
 
+<!-- svelte-ignore element_invalid_self_closing_tag -->
 <div
   class="merge-effect"
   style="
-    --x: {x}px;
-    --y: {y}px;
-    --size: {radius * 2}px;
+    --x: {x * positionScale}px;
+    --y: {y * positionScale}px;
+    --size: {radius * 2 * positionScale}px;
     --scale: {scale};
     --opacity: {opacity};
-  "
-/>
+  " />
 
 <style>
   .merge-effect {
