@@ -1,4 +1,7 @@
 <script lang="ts">
+  import { scale, fly } from 'svelte/transition';
+  import { quadOut, expoOut } from 'svelte/easing';
+
   // Import Components
   import Fruit from './Fruit.svelte';
   import MergeEffect from './MergeEffect.svelte';
@@ -32,7 +35,7 @@
   let nextFruit = $derived(FRUITS[gameState.nextFruitIndex]);
 
   // Find game scale
-  let scale = $derived.by(() => {
+  let gameScale = $derived.by(() => {
     const gameWidth = gameBoundingRect?.rect?.width || GAME_WIDTH;
     return gameWidth / GAME_WIDTH;
   });
@@ -41,8 +44,8 @@
 
   let clampedMouseX: number = $derived.by(() => {
     const currentFruitRadius = currentFruit?.radius ?? 0; // Safety check
-    const scaledRadius = currentFruitRadius * scale;
-    const scaledWidth = GAME_WIDTH * scale;
+    const scaledRadius = currentFruitRadius * gameScale;
+    const scaledWidth = GAME_WIDTH * gameScale;
     // Update mouseX state, clamped within bounds
     return clamp(cursorPosition.x, scaledRadius, scaledWidth - scaledRadius);
   });
@@ -67,7 +70,7 @@
     isDropping = true;
     gameState.dropFruit(
       gameState.currentFruitIndex,
-      clampedMouseX / scale,
+      clampedMouseX / gameScale,
       GAME_OVER_HEIGHT / 2
     );
 
@@ -115,7 +118,14 @@
       <!-- Use aria-live for screen readers to announce changes -->
       <strong class="game-info__label">Next</strong>
       <div class="next-fruit">
-        <Fruit radius={25} name={nextFruit.name} />
+        {#key gameState.dropCount}
+          <div
+            class="next-fruit-wrapper"
+            in:fly={{ delay: 450, easing: quadOut, duration: 250, x: -50 }}
+            out:fly={{ delay: 250, easing: quadOut, duration: 250, x: 50 }}>
+            <Fruit radius={25} name={nextFruit.name} />
+          </div>
+        {/key}
       </div>
       <!-- Safety check for name -->
     </div>
@@ -136,8 +146,8 @@
 
     <!-- Merge effects - Use effect.id as the key -->
     {#each gameState.mergeEffects as effect (effect.id)}
-      <GameEntity x={effect.x} y={effect.y} {scale}>
-        <MergeEffect {...effect} radius={effect.radius * scale} />
+      <GameEntity x={effect.x} y={effect.y} scale={gameScale}>
+        <MergeEffect {...effect} radius={effect.radius * gameScale} />
       </GameEntity>
     {/each}
 
@@ -146,10 +156,11 @@
       <div
         class="preview-fruit"
         aria-hidden="true"
-        style:translate="{clampedMouseX}px 0">
+        style:translate="{clampedMouseX}px 0"
+        in:scale={{ opacity: 1, easing: expoOut, duration: 250 }}>
         <!-- aria-hidden as it's purely visual feedback -->
-        <GameEntity x={0} y={GAME_OVER_HEIGHT / 2} {scale}>
-          <Fruit {...currentFruit} radius={currentFruit.radius * scale} />
+        <GameEntity x={0} y={GAME_OVER_HEIGHT / 2} scale={gameScale}>
+          <Fruit {...currentFruit} radius={currentFruit.radius * gameScale} />
         </GameEntity>
       </div>
     {/if}
@@ -163,8 +174,8 @@
         x={fruitState.x}
         y={fruitState.y}
         rotation={fruitState.rotation}
-        {scale}>
-        <Fruit {...fruit} radius={fruit.radius * scale} />
+        scale={gameScale}>
+        <Fruit {...fruit} radius={fruit.radius * gameScale} />
       </GameEntity>
     {/each}
 
@@ -229,9 +240,14 @@
   }
 
   .next-fruit {
-    display: flex;
+    display: grid;
+    grid-template-areas: 'main';
     align-items: center;
     justify-content: center;
+  }
+
+  .next-fruit-wrapper {
+    grid-area: main;
   }
 
   .score {

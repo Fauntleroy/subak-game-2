@@ -14,9 +14,9 @@
   <!-- svelte-ignore element_invalid_self_closing_tag -->
   <div class="fruitLoop" />
   <div class="fruitGroups">
-    {#each fruitGroups as fruitGroup}
+    {#each fruitGroups as fruitGroup, i (i)}
       <div class="fruitGroup">
-        {#each fruitGroup as fruit}
+        {#each fruitGroup as fruit (fruit.name)}
           <Fruit {...fruit} radius={15} />
         {/each}
       </div>

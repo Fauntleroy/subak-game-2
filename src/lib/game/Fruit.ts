@@ -9,7 +9,10 @@ import RAPIER, {
 
 import { FRUITS, GAME_OVER_HEIGHT } from '../constants';
 
+let currentIdNumber = 1;
+
 export class Fruit {
+  public readonly id: number;
   public readonly name: string;
   public readonly radius: number;
   public readonly points: number;
@@ -27,6 +30,7 @@ export class Fruit {
       throw new Error(`Invalid fruitIndex: ${fruitIndex}`);
     }
 
+    this.id = currentIdNumber++;
     this.fruitIndex = fruitIndex;
     this.name = fruitData.name;
     this.radius = fruitData.radius;

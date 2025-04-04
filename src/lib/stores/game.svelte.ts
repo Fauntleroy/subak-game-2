@@ -41,6 +41,7 @@ export class GameState {
   nextFruitIndex: number = $state(0);
   fruits: Fruit[] = [];
   fruitsState: FruitState[] = $state([]);
+  dropCount: number = $state(0);
   mergeEffects: MergeEffectData[] = $state([]);
 
   mergeEffectIdCounter: number = 0;
@@ -315,6 +316,7 @@ export class GameState {
     this.addFruit(fruitIndex, x, y);
     this.setCurrentFruitIndex(this.nextFruitIndex);
     this.setNextFruitIndex(this.getRandomFruitIndex());
+    this.setDropCount(this.dropCount + 1);
   }
 
   checkGameOver(): void {
@@ -373,6 +375,10 @@ export class GameState {
 
   setFruitsState(newFruits: FruitState[]) {
     this.fruitsState = newFruits;
+  }
+
+  setDropCount(newDropCount: number) {
+    this.dropCount = newDropCount;
   }
 
   setMergeEffects(newMergeEffects: MergeEffectData[]) {
