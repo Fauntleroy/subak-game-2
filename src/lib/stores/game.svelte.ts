@@ -311,9 +311,8 @@ export class GameState {
     this.colliderMap.set(fruit.collider.handle, fruit);
   }
 
-  dropFruit(fruitIndex: number, x: number): void {
-    const fruitRadius = FRUITS[fruitIndex]?.radius;
-    this.addFruit(fruitIndex, x, fruitRadius);
+  dropFruit(fruitIndex: number, x: number, y: number): void {
+    this.addFruit(fruitIndex, x, y);
     this.setCurrentFruitIndex(this.nextFruitIndex);
     this.setNextFruitIndex(this.getRandomFruitIndex());
   }

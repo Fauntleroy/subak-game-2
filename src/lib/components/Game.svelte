@@ -8,7 +8,7 @@
   import { saveScore } from '../stores/db';
 
   // Import Constants and Types
-  import { GAME_WIDTH, FRUITS } from '../constants';
+  import { GAME_WIDTH, GAME_OVER_HEIGHT, FRUITS } from '../constants';
 
   // Import Utilities
   import { clamp } from '../utils';
@@ -62,8 +62,14 @@
   function dropCurrentFruit() {
     if (gameState.gameOver || isDropping) return;
 
+    // const currentFruit = FRUITS[gameState.currentFruitIndex];
+
     isDropping = true;
-    gameState.dropFruit(gameState.currentFruitIndex, clampedMouseX / scale); // Use radius for initial Y
+    gameState.dropFruit(
+      gameState.currentFruitIndex,
+      clampedMouseX / scale,
+      GAME_OVER_HEIGHT / 2
+    );
 
     // Prevent dropping too quickly
     setTimeout(() => {
@@ -140,9 +146,9 @@
       <div
         class="preview-fruit"
         aria-hidden="true"
-        style:translate="{clampedMouseX - currentFruit.radius * scale}px 0">
+        style:translate="{clampedMouseX}px 0">
         <!-- aria-hidden as it's purely visual feedback -->
-        <GameEntity x={currentFruit.radius} y={currentFruit.radius} {scale}>
+        <GameEntity x={0} y={GAME_OVER_HEIGHT / 2} {scale}>
           <Fruit {...currentFruit} radius={currentFruit.radius * scale} />
         </GameEntity>
       </div>
