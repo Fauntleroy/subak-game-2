@@ -130,7 +130,11 @@
 
     <!-- Merge effects - Use effect.id as the key -->
     {#each gameState.mergeEffects as effect (effect.id)}
-      <MergeEffect {...effect} positionScale={scale} />
+      <MergeEffect
+        {...effect}
+        x={effect.x * scale}
+        y={effect.y * scale}
+        radius={effect.radius * scale} />
     {/each}
 
     <!-- Preview fruit - Appears when not dropping -->
@@ -184,7 +188,7 @@
     --border-radius: 1em;
 
     display: grid;
-    grid-template-columns: minmax(100px, 150px) minmax(300px, 600px);
+    grid-template-columns: minmax(100px, 150px) minmax(200px, 600px);
     width: fit-content;
 
     user-select: none; /* Prevent text selection */

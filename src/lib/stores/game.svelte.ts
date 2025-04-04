@@ -85,6 +85,7 @@ export class GameState {
 
       const gravity = new RAPIER.Vector2(0.0, 196.2);
       this.physicsWorld = new RAPIER.World(gravity);
+      this.physicsWorld.integrationParameters.numSolverIterations = 8;
       this.eventQueue = new RAPIER.EventQueue(true); // Create event queue (true enables contact events)
       this.colliderMap.clear(); // Ensure map is clear on init
 
