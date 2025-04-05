@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { scale, fly } from 'svelte/transition';
-  import { quadOut, expoOut } from 'svelte/easing';
+  import { scale } from 'svelte/transition';
+  import { expoOut } from 'svelte/easing';
 
   // Import Components
   import Fruit from './Fruit.svelte';
@@ -17,8 +17,8 @@
   import { clamp } from '../utils';
   import { useCursorPosition } from '../hooks/useCursorPosition.svelte';
   import { useBoundingRect } from '../hooks/useBoundingRect.svelte';
-  import CircleOfEvolution from './CircleOfEvolution.svelte';
   import GameEntity from './GameEntity.svelte';
+  import GameSidebar from './GameSidebar.svelte';
 
   // Find game area width and cursor position
   let gameRef = $state<HTMLElement | null>(null);
@@ -32,7 +32,6 @@
 
   // Find fruit data
   let currentFruit = $derived(FRUITS[gameState.currentFruitIndex]);
-  let nextFruit = $derived(FRUITS[gameState.nextFruitIndex]);
 
   // Find game scale
   let gameScale = $derived.by(() => {
@@ -113,28 +112,7 @@
   role="application"
   aria-label="Fruit merging game area"
   tabindex="0">
-  <div class="game-header">
-    <div class="next-fruit-section" aria-live="polite">
-      <!-- Use aria-live for screen readers to announce changes -->
-      <strong class="game-info__label">Next</strong>
-      <div class="next-fruit">
-        {#key gameState.dropCount}
-          <div
-            class="next-fruit-wrapper"
-            in:fly={{ delay: 450, easing: quadOut, duration: 250, x: -50 }}
-            out:fly={{ delay: 250, easing: quadOut, duration: 250, x: 50 }}>
-            <Fruit radius={25} name={nextFruit.name} />
-          </div>
-        {/key}
-      </div>
-      <!-- Safety check for name -->
-    </div>
-    <div class="score-section" aria-live="polite">
-      <strong class="game-info__label">Score</strong>
-      <var class="score">{gameState.score}</var>
-    </div>
-    <section><CircleOfEvolution /></section>
-  </div>
+  <GameSidebar />
 
   <!-- Game Container -->
   <div class="gameplay-area" bind:this={gameRef} aria-hidden="true">
@@ -200,9 +178,12 @@
 
 <style>
   .game {
-    --color-border: #ddd;
-    --color-background: #f3f3f3;
-    --color-foreground: #333;
+    --color-border: hsl(0, 0%, 75%);
+    --color-border-light: hsl(0, 0%, 82.5%);
+    --color-background: hsl(0, 0%, 92.5%);
+    --color-text: hsl(0, 0%, 20%);
+    --color-light-text: hsl(0, 0%, 35%);
+    --color-very-light-text: hsl(0, 0%, 50%);
     --border-radius: 1em;
 
     display: grid;
@@ -213,7 +194,7 @@
     touch-action: none; /* Prevent default touch actions like scrolling */
     outline: none; /* Remove default focus outline if desired, but ensure custom focus style */
     background: var(--color-background);
-    color: var(--color-foreground);
+    color: var(--color-text);
     border: 1px solid var(--color-border);
     border-radius: var(--border-radius);
   }
@@ -221,40 +202,6 @@
   /* Add focus style for accessibility */
   .game:focus-visible {
     box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.6); /* Example focus ring */
-  }
-
-  .game-header {
-    font-weight: bold;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-around;
-    gap: 1em;
-    padding: 1em;
-    border-right: 1px solid var(--color-border);
-  }
-
-  .game-info__label {
-    font-size: 1em;
-    text-transform: uppercase;
-  }
-
-  .next-fruit {
-    display: grid;
-    grid-template-areas: 'main';
-    align-items: center;
-    justify-content: center;
-  }
-
-  .next-fruit-wrapper {
-    grid-area: main;
-  }
-
-  .score {
-    display: block;
-    font-family: monospace;
-    font-style: normal;
-    font-size: 1.5em;
   }
 
   .gameplay-area {
@@ -286,7 +233,7 @@
     z-index: 0;
     width: 1px;
     height: 100%;
-    background: var(--color-border);
+    background: var(--color-border-light);
   }
 
   .preview-fruit {
