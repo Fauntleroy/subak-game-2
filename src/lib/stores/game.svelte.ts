@@ -326,6 +326,7 @@ export class GameState {
       if (fruit.isOutOfBounds()) {
         console.log('Game Over condition met!');
         this.setGameOver(true);
+        break;
       }
     }
   }
@@ -340,6 +341,7 @@ export class GameState {
     this.fruits = [];
     this.lastTime = 0;
     this.mergeEffectIdCounter = 0;
+    this.dropCount = 0;
 
     // Reset Svelte stores
     this.setFruitsState([]);
@@ -349,8 +351,8 @@ export class GameState {
     this.setCurrentFruitIndex(this.getRandomFruitIndex());
     this.setNextFruitIndex(this.getRandomFruitIndex());
 
-    // Event queue might persist or be recreated in initPhysics if needed
-    // eventQueue = null; // Or recreate in initPhysics
+    // start the loop again
+    this.update();
   }
 
   getRandomFruitIndex(limit: number = 5) {
