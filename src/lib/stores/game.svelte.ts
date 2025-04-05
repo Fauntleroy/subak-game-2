@@ -1,5 +1,9 @@
-import RAPIER, {
+import {
+  init as rapierInit,
+  Vector2,
   World,
+  RigidBodyDesc,
+  ColliderDesc,
   EventQueue // Import EventQueue
 } from '@dimforge/rapier2d-compat';
 
@@ -81,13 +85,13 @@ export class GameState {
   async initPhysics(): Promise<void> {
     console.log('Starting Rapier physics engine...');
     try {
-      await RAPIER.init();
+      await rapierInit();
       console.log('Rapier physics initialized.');
 
-      const gravity = new RAPIER.Vector2(0.0, 196.2);
-      this.physicsWorld = new RAPIER.World(gravity);
+      const gravity = new Vector2(0.0, 196.2);
+      this.physicsWorld = new World(gravity);
       this.physicsWorld.integrationParameters.numSolverIterations = 8;
-      this.eventQueue = new RAPIER.EventQueue(true); // Create event queue (true enables contact events)
+      this.eventQueue = new EventQueue(true); // Create event queue (true enables contact events)
       this.colliderMap.clear(); // Ensure map is clear on init
 
       // Create walls (walls don't need collision events for merging)
@@ -216,10 +220,10 @@ export class GameState {
       return;
     }
 
-    const bodyDesc = RAPIER.RigidBodyDesc.fixed().setTranslation(x, y);
+    const bodyDesc = RigidBodyDesc.fixed().setTranslation(x, y);
     const body = this.physicsWorld.createRigidBody(bodyDesc);
     // Walls don't need ActiveEvents.COLLISION_EVENTS unless you want to detect collisions with them
-    const colliderDesc = RAPIER.ColliderDesc.cuboid(width / 2, height / 2);
+    const colliderDesc = ColliderDesc.cuboid(width / 2, height / 2);
     this.physicsWorld.createCollider(colliderDesc, body);
   }
 

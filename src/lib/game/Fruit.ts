@@ -1,7 +1,9 @@
-import RAPIER, {
+import {
   ActiveEvents,
   RigidBody,
+  RigidBodyDesc,
   Collider,
+  ColliderDesc,
   World,
   type Vector,
   type Rotation
@@ -37,13 +39,13 @@ export class Fruit {
     this.points = fruitData.points;
     this.physicsWorld = physicsWorld;
 
-    const bodyDesc = RAPIER.RigidBodyDesc.dynamic()
+    const bodyDesc = RigidBodyDesc.dynamic()
       .setTranslation(x, y)
       .setLinearDamping(0.2)
       .setAngularDamping(0.4);
     this.body = this.physicsWorld.createRigidBody(bodyDesc);
 
-    const colliderDesc = RAPIER.ColliderDesc.ball(this.radius)
+    const colliderDesc = ColliderDesc.ball(this.radius)
       .setRestitution(0.3)
       .setFriction(0.5)
       // *** Enable collision events for this collider ***
