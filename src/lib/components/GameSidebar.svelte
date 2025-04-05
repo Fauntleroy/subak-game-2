@@ -8,6 +8,7 @@
   import CircleOfEvolution from './CircleOfEvolution.svelte';
 
   import { FRUITS } from '../constants';
+  import InterpolatingNumber from './InterpolatingNumber.svelte';
 
   let nextFruit = $derived(FRUITS[gameState.nextFruitIndex]);
 </script>
@@ -30,7 +31,7 @@
   </section>
   <section class="section" aria-live="polite">
     <h5 class="section__heading">Score</h5>
-    <var class="score">{gameState.score}</var>
+    <var class="score"><InterpolatingNumber number={gameState.score} /></var>
   </section>
   <section class="section">
     <h5 class="section__heading">Cycle</h5>
