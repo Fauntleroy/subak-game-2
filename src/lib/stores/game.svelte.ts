@@ -350,7 +350,10 @@ export class GameState {
     this.setGameOver(false);
     this.setCurrentFruitIndex(this.getRandomFruitIndex());
     this.setNextFruitIndex(this.getRandomFruitIndex());
+  }
 
+  restartGame(): void {
+    this.resetGame();
     // start the loop again
     this.update();
   }

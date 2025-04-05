@@ -167,7 +167,7 @@
         <h2 id="gameOverHeading">Game Over!</h2>
         <p>Final Score: {gameState.score}</p>
         <!-- Ensure button is focusable -->
-        <button onclick={() => gameState.resetGame()}>Play Again</button>
+        <button onclick={() => gameState.restartGame()}>Play Again</button>
       </div>
     {/if}
   </div>
