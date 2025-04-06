@@ -87,4 +87,15 @@
     border-radius: 1em;
     padding: 0.5em 1em;
   }
+
+  @media (max-width: 600px) {
+    .game-sidebar {
+      font-size: 0.9em;
+    }
+
+    .next-fruit-wrapper {
+      max-width: 35px;
+      display: flex;
+    }
+  }
 </style>
