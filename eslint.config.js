@@ -6,6 +6,9 @@ import svelteEslint from 'eslint-plugin-svelte';
 import svelteConfig from './svelte.config.js';
 
 export default tsEslint.config(
+  {
+    ignores: ['dist/**']
+  },
   js.configs.recommended,
   ...tsEslint.configs.recommended,
   ...svelteEslint.configs.recommended,

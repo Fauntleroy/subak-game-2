@@ -2,8 +2,6 @@ import {
   init as rapierInit,
   Vector2,
   World,
-  RigidBodyDesc,
-  ColliderDesc,
   EventQueue // Import EventQueue
 } from '@dimforge/rapier2d-compat';
 
@@ -16,6 +14,32 @@ import {
   WALL_THICKNESS
 } from '../constants'; // Ensure constants are correctly typed in their file
 import { throttle } from '../utils/throttle';
+import { AudioManager } from '../game/AudioManager';
+import { Boundary } from '../game/Boundary';
+
+// --- Constants for Volume Mapping ---
+const MIN_VELOCITY_FOR_SOUND = 50; // Ignore very gentle taps
+const MAX_VELOCITY_FOR_MAX_VOL = 100; // Velocity at which sound is loudest
+const MIN_COLLISION_VOLUME = 0.2; // Minimum volume for the quietest sound
+const MAX_COLLISION_VOLUME = 1.0; // Maximum volume for the loudest sound
+// --- Pitch variation settings ---
+const PITCH_VARIATION_MIN = 0.9;
+const PITCH_VARIATION_MAX = 1.1;
+const BUMP_SOUND_COOLDOWN_MS = 50;
+
+// Helper function (as defined above)
+function mapRange(
+  value: number,
+  inMin: number,
+  inMax: number,
+  outMin: number,
+  outMax: number
+): number {
+  const clampedValue = Math.max(inMin, Math.min(value, inMax));
+  return (
+    ((clampedValue - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin
+  );
+}
 
 // --- Interfaces remain the same ---
 export interface MergeEffectData {
@@ -39,6 +63,7 @@ export interface FruitState {
 const easeOutQuad = (t: number): number => t * (2 - t);
 
 export class GameState {
+  audioManager: AudioManager | null = null;
   score: number = $state(0);
   gameOver: boolean = $state(false);
   currentFruitIndex: number = $state(0);
@@ -55,12 +80,15 @@ export class GameState {
 
   physicsWorld: World | null = null;
   eventQueue: EventQueue | null = null;
-  colliderMap: Map<number, Fruit> = new Map();
+  colliderMap: Map<number, Fruit | Boundary> = new Map();
+
+  lastBumpSoundTime: DOMHighResTimeStamp = 0;
 
   throttledCheckGameOver?: () => void;
 
   constructor() {
     (async () => {
+      this.audioManager = new AudioManager();
       this.throttledCheckGameOver = throttle(this.checkGameOver, 500);
       await this.initPhysics();
       this.resetGame();
@@ -130,6 +158,49 @@ export class GameState {
         return;
       }
 
+      // Look up our data associated with the collider handles
+      const collisionItemA = this.colliderMap.get(handle1);
+      const collisionItemB = this.colliderMap.get(handle2);
+
+      if (collisionItemA?.body && collisionItemB?.body && this.audioManager) {
+        const now = performance.now();
+
+        // Get velocities (use {x:0, y:0} for static bodies or null bodies)
+        const vel1 = collisionItemA.body.linvel() ?? { x: 0, y: 0 };
+        const vel2 = collisionItemB.body.linvel() ?? { x: 0, y: 0 };
+
+        // Calculate relative velocity magnitude
+        const relVelX = vel1.x - vel2.x;
+        const relVelY = vel1.y - vel2.y;
+        const relVelMag = Math.sqrt(relVelX * relVelX + relVelY * relVelY);
+
+        // --- Determine Volume and Play Sound ---
+        if (relVelMag >= MIN_VELOCITY_FOR_SOUND) {
+          // Check global time-based cooldown first
+          if (now - this.lastBumpSoundTime > BUMP_SOUND_COOLDOWN_MS) {
+            // Map velocity to volume
+            const volume = mapRange(
+              relVelMag,
+              MIN_VELOCITY_FOR_SOUND,
+              MAX_VELOCITY_FOR_MAX_VOL,
+              MIN_COLLISION_VOLUME,
+              MAX_COLLISION_VOLUME
+            );
+
+            // Apply random pitch variation
+            const rate =
+              PITCH_VARIATION_MIN +
+              Math.random() * (PITCH_VARIATION_MAX - PITCH_VARIATION_MIN);
+
+            // Play the sound using AudioManager
+            this.audioManager.playSound('bump', { volume, rate });
+
+            // Update the last play time
+            this.lastBumpSoundTime = now;
+          }
+        }
+      }
+
       // Avoid processing if either collider is already part of a merge this step
       if (
         mergedHandlesThisStep.has(handle1) ||
@@ -138,9 +209,14 @@ export class GameState {
         return;
       }
 
-      // Look up our data associated with the collider handles
-      const fruitA = this.colliderMap.get(handle1);
-      const fruitB = this.colliderMap.get(handle2);
+      let fruitA;
+      let fruitB;
+      if (collisionItemA instanceof Fruit && collisionItemB instanceof Fruit) {
+        fruitA = collisionItemA;
+        fruitB = collisionItemB;
+      } else {
+        return;
+      }
 
       // Ensure both colliders correspond to known fruit data and are valid
       if (
@@ -220,11 +296,9 @@ export class GameState {
       return;
     }
 
-    const bodyDesc = RigidBodyDesc.fixed().setTranslation(x, y);
-    const body = this.physicsWorld.createRigidBody(bodyDesc);
-    // Walls don't need ActiveEvents.COLLISION_EVENTS unless you want to detect collisions with them
-    const colliderDesc = ColliderDesc.cuboid(width / 2, height / 2);
-    this.physicsWorld.createCollider(colliderDesc, body);
+    const boundary = new Boundary(x, y, width, height, this.physicsWorld);
+
+    this.colliderMap.set(boundary.collider.handle, boundary);
   }
 
   mergeFruits(fruitA: Fruit, fruitB: Fruit): void {
