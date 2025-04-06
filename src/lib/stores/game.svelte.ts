@@ -88,7 +88,7 @@ export class GameState {
       await rapierInit();
       console.log('Rapier physics initialized.');
 
-      const gravity = new Vector2(0.0, 196.2);
+      const gravity = new Vector2(0.0, 500);
       this.physicsWorld = new World(gravity);
       this.physicsWorld.integrationParameters.numSolverIterations = 8;
       this.eventQueue = new EventQueue(true); // Create event queue (true enables contact events)

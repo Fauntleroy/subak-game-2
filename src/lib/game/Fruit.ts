@@ -11,6 +11,10 @@ import {
 
 import { FRUITS, GAME_OVER_HEIGHT } from '../constants';
 
+interface FruitBodyUserData {
+  fruitInstance: Fruit;
+}
+
 let currentIdNumber = 1;
 
 export class Fruit {
@@ -48,6 +52,7 @@ export class Fruit {
     const colliderDesc = ColliderDesc.ball(this.radius)
       .setRestitution(0.3)
       .setFriction(0.5)
+      .setMass(1)
       // *** Enable collision events for this collider ***
       .setActiveEvents(ActiveEvents.COLLISION_EVENTS);
     this.collider = this.physicsWorld.createCollider(colliderDesc, this.body);
@@ -61,7 +66,7 @@ export class Fruit {
     }
     // Use a specific key like 'fruitInstance' to avoid potential conflicts
     // if userData is used for other things.
-    this.body.userData.fruitInstance = this;
+    (this.body.userData as FruitBodyUserData).fruitInstance = this;
 
     // Optional: You might prefer attaching to the collider if you primarily
     // work with colliders in collision events. Assumes one collider per body.
