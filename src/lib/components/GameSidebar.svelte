@@ -41,7 +41,6 @@
 
 <style>
   .game-sidebar {
-    font-weight: 500;
     display: flex;
     flex-direction: column;
     align-items: center;

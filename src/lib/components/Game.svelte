@@ -211,7 +211,11 @@
     font-family: 'Schibsted Grotesk';
     font-optical-sizing: auto;
     font-style: normal;
-    font-weight: 550;
+    font-weight: 400;
+
+    :global(b, strong, h1, h2, h3, h4, h5, h6) {
+      font-weight: 550;
+    }
 
     :global(var) {
       font-family: 'Azeret Mono', monospace;
