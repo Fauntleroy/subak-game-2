@@ -106,7 +106,7 @@ export class AudioManager {
 
     // Although Howler handles context unlocking, we double-check for safety.
     // The first play *must* happen after user interaction for browsers.
-    if (!this.isAudioContextReady && Howler.ctx?.state !== 'running') {
+    if (!this.isAudioContextReady) {
       console.warn(
         `Cannot play sound "${name}" - Audio Context not ready.` +
           ` Ensure initializeAudioContext() or the first playSound()` +
@@ -124,7 +124,6 @@ export class AudioManager {
 
     if (typeof cooldown === 'undefined' || now - lastPlayTime > cooldown) {
       try {
-        console.log(`playing sound ${name}`);
         const soundId = sound.play();
 
         // Apply options if provided

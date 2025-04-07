@@ -25,7 +25,6 @@ const MAX_COLLISION_VOLUME = 1.0; // Maximum volume for the loudest sound
 // --- Pitch variation settings ---
 const PITCH_VARIATION_MIN = 0.9;
 const PITCH_VARIATION_MAX = 1.1;
-const BUMP_SOUND_COOLDOWN_MS = 50;
 
 // Helper function (as defined above)
 function mapRange(
@@ -165,19 +164,33 @@ export class GameState {
       if (collisionItemA?.body && collisionItemB?.body && this.audioManager) {
         const now = performance.now();
 
-        // Get velocities (use {x:0, y:0} for static bodies or null bodies)
-        const vel1 = collisionItemA.body.linvel() ?? { x: 0, y: 0 };
-        const vel2 = collisionItemB.body.linvel() ?? { x: 0, y: 0 };
+        // Apply random pitch variation
+        const rate =
+          PITCH_VARIATION_MIN +
+          Math.random() * (PITCH_VARIATION_MAX - PITCH_VARIATION_MIN);
 
-        // Calculate relative velocity magnitude
-        const relVelX = vel1.x - vel2.x;
-        const relVelY = vel1.y - vel2.y;
-        const relVelMag = Math.sqrt(relVelX * relVelX + relVelY * relVelY);
+        // if it's two fruits they will always fire pop sound effect
+        if (
+          collisionItemA instanceof Fruit &&
+          collisionItemB instanceof Fruit &&
+          collisionItemA.fruitIndex === collisionItemB.fruitIndex
+        ) {
+          this.audioManager.playSound('pop', { volume: 1, rate });
+          // bump sounds have complex logic
+        } else {
+          // Get velocities (use {x:0, y:0} for static bodies or null bodies)
+          const vel1 = collisionItemA.body.linvel() ?? { x: 0, y: 0 };
+          const vel2 = collisionItemB.body.linvel() ?? { x: 0, y: 0 };
 
-        // --- Determine Volume and Play Sound ---
-        if (relVelMag >= MIN_VELOCITY_FOR_SOUND) {
-          // Check global time-based cooldown first
-          if (now - this.lastBumpSoundTime > BUMP_SOUND_COOLDOWN_MS) {
+          // Calculate relative velocity magnitude
+          const relVelX = vel1.x - vel2.x;
+          const relVelY = vel1.y - vel2.y;
+          const relVelMag = Math.sqrt(relVelX * relVelX + relVelY * relVelY);
+
+          // --- Determine Volume and Play Sound ---
+          if (relVelMag >= MIN_VELOCITY_FOR_SOUND) {
+            // Check global time-based cooldown first
+
             // Map velocity to volume
             const volume = mapRange(
               relVelMag,
@@ -187,21 +200,9 @@ export class GameState {
               MAX_COLLISION_VOLUME
             );
 
-            // Apply random pitch variation
-            const rate =
-              PITCH_VARIATION_MIN +
-              Math.random() * (PITCH_VARIATION_MAX - PITCH_VARIATION_MIN);
-
             // Play the sound using AudioManager
-            if (
-              collisionItemA instanceof Fruit &&
-              collisionItemB instanceof Fruit &&
-              collisionItemA.fruitIndex === collisionItemB.fruitIndex
-            ) {
-              this.audioManager.playSound('pop', { volume, rate });
-            } else {
-              this.audioManager.playSound('bump', { volume, rate });
-            }
+
+            this.audioManager.playSound('bump', { volume, rate });
 
             // Update the last play time
             this.lastBumpSoundTime = now;
