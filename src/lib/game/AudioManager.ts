@@ -18,51 +18,29 @@ interface PlayOptions {
 export class AudioManager {
   private sounds: Record<string, Howl> = {};
   private soundCooldowns: Record<string, number> = {}; // Tracks last play time
-  private defaultCooldownMs: number;
-  private isAudioContextReady = false; // Track if user interaction happened
 
-  constructor(defaultCooldownMs = 100) {
-    this.defaultCooldownMs = defaultCooldownMs;
+  get isAudioContextReady() {
+    return Howler.ctx?.state === 'running';
+  }
+
+  constructor() {
+    this.loadSound(
+      'bump',
+      '/sounds/bump.wav',
+      { volume: 0.8, preload: true },
+      50 // Specific cooldown for bump sound (50ms)
+    );
+
+    this.loadSound('pop', '/sounds/pop.wav', {
+      volume: 0.8,
+      preload: true
+    });
+
     // Attempt to resume audio context if it was previously suspended
     // This might help in some scenarios but isn't a guaranteed fix for autoplay
     if (Howler.ctx && Howler.ctx.state === 'suspended') {
       Howler.ctx.resume();
     }
-  }
-
-  /**
-   * Initializes the audio system, primarily by ensuring the AudioContext
-   * is unlocked via a user gesture. This should be called from an event
-   * handler triggered by user interaction (e.g., button click).
-   * Returns a promise that resolves when the context is likely ready.
-   */
-  public async initializeAudioContext(): Promise<void> {
-    if (this.isAudioContextReady || Howler.ctx?.state === 'running') {
-      this.isAudioContextReady = true;
-      console.log('Audio context already running.');
-      return;
-    }
-
-    console.log(
-      'Attempting to unlock Audio Context. Waiting for first play...'
-    );
-
-    await this.loadSound(
-      'bump',
-      '/sounds/bump.wav', // Make sure this path is correct
-      { volume: 0.8, preload: true },
-      50 // Specific cooldown for bump sound (50ms)
-    );
-
-    // Howler tries to unlock automatically on the first play() call
-    // after user interaction. We don't need explicit unlocking code here,
-    // but we rely on the *first* call to playSound happening *after*
-    // user interaction. This function primarily serves as a marker
-    // and potentially for future explicit unlocking logic if needed.
-    // For now, we resolve immediately and rely on the game's start logic.
-    // A more robust approach might involve playing a silent sound here,
-    // but requires this method itself to be called from user interaction.
-    this.isAudioContextReady = true; // Assume it will be ready by first play
   }
 
   /**
@@ -138,18 +116,15 @@ export class AudioManager {
       Howler.ctx?.resume();
       return null;
     }
-    // If context becomes ready, mark it
-    if (Howler.ctx?.state === 'running') {
-      this.isAudioContextReady = true;
-    }
 
     const now = performance.now();
     const lastPlayTime = this.soundCooldowns[name] ?? 0;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const cooldown = (sound as any)._customCooldown ?? this.defaultCooldownMs;
+    const cooldown = (sound as any)._customCooldown;
 
-    if (now - lastPlayTime > cooldown) {
+    if (typeof cooldown === 'undefined' || now - lastPlayTime > cooldown) {
       try {
+        console.log(`playing sound ${name}`);
         const soundId = sound.play();
 
         // Apply options if provided
@@ -182,7 +157,6 @@ export class AudioManager {
     maxRate = 1.1,
     baseVolume?: number
   ): number | null {
-    console.log('play the sound');
     const rate = minRate + Math.random() * (maxRate - minRate);
     return this.playSound(name, { rate: rate, volume: baseVolume });
   }

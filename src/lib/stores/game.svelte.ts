@@ -193,7 +193,15 @@ export class GameState {
               Math.random() * (PITCH_VARIATION_MAX - PITCH_VARIATION_MIN);
 
             // Play the sound using AudioManager
-            this.audioManager.playSound('bump', { volume, rate });
+            if (
+              collisionItemA instanceof Fruit &&
+              collisionItemB instanceof Fruit &&
+              collisionItemA.fruitIndex === collisionItemB.fruitIndex
+            ) {
+              this.audioManager.playSound('pop', { volume, rate });
+            } else {
+              this.audioManager.playSound('bump', { volume, rate });
+            }
 
             // Update the last play time
             this.lastBumpSoundTime = now;

@@ -11,14 +11,9 @@
   import InterpolatingNumber from './InterpolatingNumber.svelte';
 
   let nextFruit = $derived(FRUITS[gameState.nextFruitIndex]);
-
-  function handleStartAudioClick() {
-    gameState.audioManager?.initializeAudioContext();
-  }
 </script>
 
 <div class="game-sidebar">
-  <button onclick={handleStartAudioClick}>Start Audio</button>
   <section class="section" aria-live="polite">
     <!-- Use aria-live for screen readers to announce changes -->
     <h5 class="section__heading">Next</h5>
