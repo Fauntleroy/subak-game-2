@@ -198,6 +198,12 @@
     border: 1px solid var(--color-border);
     border-radius: var(--border-radius);
 
+    font-size: 18px;
+    font-family: 'Schibsted Grotesk';
+    font-optical-sizing: auto;
+    font-style: normal;
+    font-weight: 550;
+
     :global(var) {
       font-family: 'Azeret Mono', monospace;
       font-optical-sizing: auto;

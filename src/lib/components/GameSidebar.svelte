@@ -61,6 +61,7 @@
     margin: 0;
     font-size: 1em;
     text-transform: uppercase;
+    letter-spacing: 10%;
   }
 
   .next-fruit {
@@ -83,15 +84,15 @@
     font-family: monospace;
     font-style: normal;
     font-weight: 250;
-    font-size: 2em;
+    font-size: 1.5em;
     border: var(--color-border-light) 1px solid;
     border-radius: 1em;
-    padding: 0.5em 1em;
+    padding: 0.125em 0.5em;
   }
 
   @media (max-width: 600px) {
     .game-sidebar {
-      font-size: 0.9em;
+      font-size: 14px;
     }
 
     .next-fruit-wrapper {
