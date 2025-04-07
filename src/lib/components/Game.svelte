@@ -19,6 +19,7 @@
   import { useBoundingRect } from '../hooks/useBoundingRect.svelte';
   import GameEntity from './GameEntity.svelte';
   import GameSidebar from './GameSidebar.svelte';
+  import GameModals from './GameModals.svelte';
 
   // Find game area width and cursor position
   let gameRef = $state<HTMLElement | null>(null);
@@ -107,15 +108,18 @@
 <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 <div
   class="game"
-  onpointerdown={handleClick}
-  onkeydown={handleKeyDown}
   role="application"
   aria-label="Fruit merging game area"
   tabindex="0">
   <GameSidebar />
 
   <!-- Game Container -->
-  <div class="gameplay-area" bind:this={gameRef} aria-hidden="true">
+  <div
+    class="gameplay-area"
+    bind:this={gameRef}
+    onpointerdown={handleClick}
+    onkeydown={handleKeyDown}
+    aria-hidden="true">
     <!-- aria-hidden because the wrapper handles interaction -->
 
     <div class="restricted-area"></div>
@@ -174,6 +178,7 @@
 
   <!-- ScoreBoard Component -->
   <!-- <ScoreBoard /> -->
+  <div class="footer"><GameModals /></div>
 </div>
 
 <style>
@@ -188,7 +193,11 @@
 
     display: grid;
     grid-template-columns: minmax(100px, 150px) minmax(200px, 600px);
+    grid-template-areas: 'sidebar gameplay' 'footer footer';
     width: fit-content;
+
+    position: relative;
+    overflow: hidden;
 
     user-select: none; /* Prevent text selection */
     touch-action: none; /* Prevent default touch actions like scrolling */
@@ -272,6 +281,10 @@
 
   .game-over h2 {
     margin-top: 0;
+  }
+
+  .footer {
+    grid-area: footer;
   }
 
   button {

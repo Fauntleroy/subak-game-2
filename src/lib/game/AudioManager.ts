@@ -159,4 +159,9 @@ export class AudioManager {
     const rate = minRate + Math.random() * (maxRate - minRate);
     return this.playSound(name, { rate: rate, volume: baseVolume });
   }
+
+  public toggleMute(): void {
+    window.Howler = Howler;
+    Howler.mute(!Howler._muted);
+  }
 }
