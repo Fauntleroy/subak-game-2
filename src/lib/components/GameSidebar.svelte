@@ -82,7 +82,8 @@
     display: block;
     font-family: monospace;
     font-style: normal;
-    font-size: 1.5em;
+    font-weight: 250;
+    font-size: 2em;
     border: var(--color-border-light) 1px solid;
     border-radius: 1em;
     padding: 0.5em 1em;

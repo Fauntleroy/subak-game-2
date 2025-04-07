@@ -197,6 +197,12 @@
     color: var(--color-text);
     border: 1px solid var(--color-border);
     border-radius: var(--border-radius);
+
+    :global(var) {
+      font-family: 'Azeret Mono', monospace;
+      font-optical-sizing: auto;
+      font-style: normal;
+    }
   }
 
   /* Add focus style for accessibility */
