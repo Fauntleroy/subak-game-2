@@ -1,9 +1,9 @@
 <script>
   // --- Props ---
   // `open`: Controls the visibility of the modal (bindable)
-  // `onclose`: Callback function triggered when the modal requests to be closed
+  // `onClose`: Callback function triggered when the modal requests to be closed
   // `children`: Slot content for the modal body
-  let { open = false, onclose = () => {}, children } = $props();
+  let { open = false, onClose = () => {}, children } = $props();
 
   // --- State ---
   // Reference to the dialog DOM element
@@ -32,11 +32,11 @@
 
     const handleNativeClose = () => {
       // When the dialog closes natively (e.g., ESC),
-      // call the onclose prop to notify the parent.
+      // call the onClose prop to notify the parent.
       // This keeps the parent's `open` state in sync.
       if (open) {
         // Only trigger if it was supposed to be open
-        onclose();
+        onClose();
       }
     };
 
@@ -53,7 +53,7 @@
   function requestClose() {
     // Call the provided callback; the parent component is responsible
     // for actually changing the `open` prop to false.
-    onclose();
+    onClose();
   }
 </script>
 

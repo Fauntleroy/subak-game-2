@@ -5,6 +5,7 @@
 
   import SoundOn from '../icons/sound-on.svelte';
   import SoundOff from '../icons/sound-off.svelte';
+  import LeaderboardModal from './LeaderboardModal.svelte';
 
   let showModal = $state(false);
 
@@ -22,19 +23,9 @@
 </script>
 
 <footer class="control-bar">
-  <button onclick={openMyModal}>Open Modal</button>
+  <button onclick={openMyModal}>Leaderboard</button>
 
-  {#if showModal}
-    <Modal open={showModal} onclose={closeMyModal}>
-      <h2>Hello from the Modal!</h2>
-      <p>This is the content inside the modal dialog.</p>
-      <p>
-        You can close it using the 'X' button, clicking the background, or
-        pressing the ESC key.
-      </p>
-      <button onclick={closeMyModal}>Close from inside</button>
-    </Modal>
-  {/if}
+  <LeaderboardModal open={showModal} onClose={closeMyModal} />
 
   <button onclick={handleMuteClick}>
     {#if gameState.audioManager?.isMuted}
