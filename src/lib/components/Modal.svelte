@@ -82,7 +82,8 @@
   .custom-backdrop {
     position: absolute;
     inset: 0; /* Cover entire viewport */
-    background-color: rgba(255, 255, 255, 0.5); /* 50% opaque white */
+    background-color: var(--color-background); /* 50% opaque white */
+    opacity: 0.9;
     backdrop-filter: blur(10px);
     z-index: 10; /* Ensure it's below the dialog */
   }
@@ -91,12 +92,12 @@
     /* Reset browser defaults */
     padding: 0;
     border: none;
-    background: var(--color-background);
+    background: var(--color-background-light);
     color: var(--color-text); /* Or your desired modal background */
     border-radius: 8px; /* Optional: rounded corners */
     box-shadow:
-      0 5px 5px rgba(0, 0, 0, 0.05),
-      0 1px 0px rgba(0, 0, 0, 0.075); /* Optional: shadow */
+      0 20px 5px -10px rgba(0, 0, 0, 0.075),
+      0 2px 0px 0px rgba(0, 0, 0, 0.1); /* Optional: shadow */
 
     /* Positioning and Sizing */
     position: absolute; /* Needed for z-index and centering */
@@ -123,7 +124,7 @@
 
   /* Hide the default ::backdrop pseudo-element provided by <dialog> */
   dialog::backdrop {
-    background-color: transparent;
+    display: none;
   }
 
   .modal-content {

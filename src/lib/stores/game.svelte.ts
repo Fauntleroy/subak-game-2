@@ -14,7 +14,7 @@ import {
   WALL_THICKNESS
 } from '../constants'; // Ensure constants are correctly typed in their file
 import { throttle } from '../utils/throttle';
-import { AudioManager } from '../game/AudioManager';
+import { AudioManager } from '../game/AudioManager.svelte';
 import { Boundary } from '../game/Boundary';
 
 // --- Constants for Volume Mapping ---

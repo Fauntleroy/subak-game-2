@@ -186,6 +186,7 @@
     --color-border: hsl(0, 0%, 75%);
     --color-border-light: hsl(0, 0%, 82.5%);
     --color-background: hsl(0, 0%, 92.5%);
+    --color-background-light: hsl(0, 0%, 99%);
     --color-text: hsl(0, 0%, 20%);
     --color-light-text: hsl(0, 0%, 35%);
     --color-very-light-text: hsl(0, 0%, 50%);
@@ -207,14 +208,35 @@
     border: 1px solid var(--color-border);
     border-radius: var(--border-radius);
 
-    font-size: 18px;
-    font-family: 'Schibsted Grotesk';
+    font-size: 16px;
+    font-family: Inter, sans-serif;
     font-optical-sizing: auto;
     font-style: normal;
     font-weight: 400;
 
     :global(b, strong, h1, h2, h3, h4, h5, h6) {
       font-weight: 550;
+    }
+
+    :global(button) {
+      font-size: 1em;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 2em;
+      background: var(--color-background);
+      border: none;
+      border-radius: 0.5em;
+      padding: 0.25em 0.75em;
+      color: var(--color-text);
+      box-shadow:
+        0px 2px 5px 0px rgba(0, 0, 0, 0.125),
+        0 2px 0px 0px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+
+      &:hover {
+        background: var(--color-background-light);
+      }
     }
 
     :global(var) {
@@ -235,8 +257,12 @@
     flex-shrink: 1;
     aspect-ratio: 2 / 3;
     position: relative;
-    background: var(--color-background);
-    border-radius: var(--border-radius);
+    box-shadow:
+      inset 0px 0px 5px 0px rgba(0, 0, 0, 0.125),
+      inset 0 2px 0px 0px rgba(0, 0, 0, 0.1);
+    background-color: rgba(0, 0, 0, 0.025);
+    border-bottom-left-radius: var(--border-radius);
+
     /* Removed cursor: pointer as interaction is on wrapper */
     user-select: none;
     overflow: hidden;
@@ -248,7 +274,7 @@
     left: 0;
     height: 16.666%;
     width: 100%;
-    border-bottom: 1px solid var(--color-border);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   }
 
   .drop-line {

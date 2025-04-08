@@ -47,7 +47,6 @@
     justify-content: space-around;
     gap: 1em;
     padding: 1em;
-    border-right: 1px solid var(--color-border);
   }
 
   .section {

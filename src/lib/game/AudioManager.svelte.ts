@@ -18,6 +18,7 @@ interface PlayOptions {
 export class AudioManager {
   private sounds: Record<string, Howl> = {};
   private soundCooldowns: Record<string, number> = {}; // Tracks last play time
+  isMuted: boolean = $state(Howler?._muted);
 
   get isAudioContextReady() {
     return Howler.ctx?.state === 'running';
@@ -161,7 +162,8 @@ export class AudioManager {
   }
 
   public toggleMute(): void {
-    window.Howler = Howler;
-    Howler.mute(!Howler._muted);
+    const newIsMuted = !this.isMuted;
+    Howler.mute(newIsMuted);
+    this.isMuted = newIsMuted;
   }
 }
