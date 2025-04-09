@@ -214,6 +214,33 @@
     font-style: normal;
     font-weight: 400;
 
+    &::before {
+      content: '';
+      background: linear-gradient(
+        160deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0) 4%,
+        rgba(255, 255, 255, 0.7364146342130602) 7%,
+        rgba(255, 255, 255, 0.7084034297312676) 14%,
+        rgba(255, 255, 255, 0) 16%,
+        rgba(255, 255, 255, 0) 22%,
+        rgba(255, 255, 255, 0.898879620207458) 25%,
+        rgba(255, 255, 255, 0.8372549703475141) 39%,
+        rgba(255, 255, 255, 0) 45%,
+        rgba(255, 255, 255, 0) 75%,
+        rgba(255, 255, 255, 0.5123249983587185) 81%,
+        rgba(255, 255, 255, 0.4507003484987745) 86%,
+        rgba(255, 255, 255, 0) 93%,
+        rgba(255, 255, 255, 0) 100%
+      );
+      position: absolute;
+      inset: 0;
+      z-index: 100;
+      pointer-events: none;
+      opacity: 0.35;
+      mix-blend-mode: color-dodge;
+    }
+
     :global(b, strong, h1, h2, h3, h4, h5, h6) {
       font-weight: 550;
     }

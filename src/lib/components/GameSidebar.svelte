@@ -67,7 +67,10 @@
     grid-template-areas: 'main';
     align-items: center;
     justify-items: center;
-    border: var(--color-border-light) 1px solid;
+    box-shadow:
+      inset 0px 0px 5px 0px rgba(0, 0, 0, 0.125),
+      inset 0 2px 0px 0px rgba(0, 0, 0, 0.1);
+    background-color: rgba(0, 0, 0, 0.025);
     border-radius: 2em;
     padding: 0.75em 1em;
     overflow: hidden;
