@@ -6,8 +6,10 @@
   import SoundOn from '../icons/sound-on.svelte';
   import SoundOff from '../icons/sound-off.svelte';
   import LeaderboardModal from './LeaderboardModal.svelte';
+  import IntroductionModal from './IntroductionModal.svelte';
 
   let showModal = $state(false);
+  let showIntroduction = $state(true);
 
   function openMyModal() {
     showModal = true;
@@ -17,14 +19,26 @@
     showModal = false;
   }
 
+  function handleLeaderBoardButtonClick() {
+    showIntroduction = true;
+  }
+
+  function handleCloseIntroduction() {
+    showIntroduction = false;
+  }
+
   function handleMuteClick() {
     gameState.audioManager.toggleMute();
   }
 </script>
 
 <footer class="control-bar">
-  <button onclick={openMyModal}>Leaderboard</button>
+  <button onclick={handleLeaderBoardButtonClick}>About</button>
+  <IntroductionModal
+    open={showIntroduction}
+    onClose={handleCloseIntroduction} />
 
+  <button onclick={openMyModal}>Leaderboard</button>
   <LeaderboardModal open={showModal} onClose={closeMyModal} />
 
   <button onclick={handleMuteClick}>

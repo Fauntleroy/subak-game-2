@@ -1,11 +1,22 @@
-<script>
-  let { radius, name } = $props();
+<script lang="ts">
+  interface FruitProps {
+    radius: number | string;
+    name: string;
+    display?: 'block' | 'inline';
+  }
+
+  let { radius, name, display = 'block' }: FruitProps = $props();
+
+  const width = $derived.by(() => {
+    return Number.isFinite(radius) ? `${(radius as number) * 2}px` : radius;
+  });
 </script>
 
 <div
   class="fruit"
-  style:width="{radius * 2}px"
-  style:background-image="url('/fruits/{name}.png')">
+  style:width
+  style:background-image="url('/fruits/{name}.png')"
+  style:display={display === 'inline' ? 'inline-block' : display}>
 </div>
 
 <style>
