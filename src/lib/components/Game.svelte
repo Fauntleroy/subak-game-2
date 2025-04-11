@@ -19,7 +19,7 @@
   import { useBoundingRect } from '../hooks/useBoundingRect.svelte';
   import GameEntity from './GameEntity.svelte';
   import GameSidebar from './GameSidebar.svelte';
-  import GameModals from './GameModals.svelte';
+  import GameHeader from './GameHeader.svelte';
 
   // Find game area width and cursor position
   let gameRef = $state<HTMLElement | null>(null);
@@ -111,7 +111,8 @@
   role="application"
   aria-label="Fruit merging game area"
   tabindex="0">
-  <GameSidebar />
+  <div class="header"><GameHeader /></div>
+  <div class="sidebar"><GameSidebar /></div>
 
   <!-- Game Container -->
   <div
@@ -178,7 +179,6 @@
 
   <!-- ScoreBoard Component -->
   <!-- <ScoreBoard /> -->
-  <div class="footer"><GameModals /></div>
 </div>
 
 <style>
@@ -194,7 +194,7 @@
 
     display: grid;
     grid-template-columns: minmax(100px, 150px) minmax(200px, 600px);
-    grid-template-areas: 'sidebar gameplay' 'footer footer';
+    grid-template-areas: 'header header' 'sidebar gameplay';
     width: fit-content;
 
     position: relative;
@@ -216,28 +216,11 @@
 
     &::before {
       content: '';
-      background: linear-gradient(
-        160deg,
-        rgba(255, 255, 255, 0) 0%,
-        rgba(255, 255, 255, 0) 4%,
-        rgba(255, 255, 255, 0.7364146342130602) 7%,
-        rgba(255, 255, 255, 0.7084034297312676) 14%,
-        rgba(255, 255, 255, 0) 16%,
-        rgba(255, 255, 255, 0) 22%,
-        rgba(255, 255, 255, 0.898879620207458) 25%,
-        rgba(255, 255, 255, 0.8372549703475141) 39%,
-        rgba(255, 255, 255, 0) 45%,
-        rgba(255, 255, 255, 0) 75%,
-        rgba(255, 255, 255, 0.5123249983587185) 81%,
-        rgba(255, 255, 255, 0.4507003484987745) 86%,
-        rgba(255, 255, 255, 0) 93%,
-        rgba(255, 255, 255, 0) 100%
-      );
       position: absolute;
       inset: 0;
       z-index: 100;
       pointer-events: none;
-      opacity: 0.35;
+      opacity: 0.25;
       mix-blend-mode: color-dodge;
     }
 
@@ -271,6 +254,11 @@
       font-optical-sizing: auto;
       font-style: normal;
     }
+
+    @media screen and (max-width: 420px) {
+      grid-template-columns: 1fr;
+      grid-template-areas: 'header' 'sidebar' 'gameplay';
+    }
   }
 
   /* Add focus style for accessibility */
@@ -288,7 +276,6 @@
       inset 0px 0px 5px 0px rgba(0, 0, 0, 0.125),
       inset 0 2px 0px 0px rgba(0, 0, 0, 0.1);
     background-color: rgba(0, 0, 0, 0.025);
-    border-bottom-left-radius: var(--border-radius);
 
     /* Removed cursor: pointer as interaction is on wrapper */
     user-select: none;
@@ -349,8 +336,13 @@
     margin-top: 0;
   }
 
-  .footer {
-    grid-area: footer;
+  .sidebar {
+    grid-area: sidebar;
+  }
+
+  .header {
+    grid-area: header;
+    border-bottom: var(--color-border-light) 1px solid;
   }
 
   button {

@@ -17,7 +17,7 @@
     {#each fruitGroups as fruitGroup, i (i)}
       <div class="fruitGroup">
         {#each fruitGroup as fruit (fruit.name)}
-          <Fruit {...fruit} radius={12} />
+          <Fruit {...fruit} radius="1.5em" />
         {/each}
       </div>
     {/each}

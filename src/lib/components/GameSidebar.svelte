@@ -41,12 +41,17 @@
 
 <style>
   .game-sidebar {
+    height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: space-around;
     gap: 1em;
     padding: 1em;
+
+    @media screen and (max-width: 420px) {
+      flex-direction: row;
+    }
   }
 
   .section {
