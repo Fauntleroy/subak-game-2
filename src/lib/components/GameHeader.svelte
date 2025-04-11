@@ -56,7 +56,6 @@
     justify-content: space-between;
     gap: 1em;
     padding: 0.5em 1em;
-    font-size: 0.8em;
   }
 
   .leading,

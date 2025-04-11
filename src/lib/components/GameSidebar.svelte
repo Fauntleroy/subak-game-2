@@ -23,7 +23,7 @@
           class="next-fruit-wrapper"
           in:fly={{ delay: 450, easing: quadOut, duration: 250, x: -50 }}
           out:fly={{ delay: 250, easing: quadOut, duration: 250, x: 50 }}>
-          <Fruit radius={25} name={nextFruit.name} />
+          <Fruit radius="2.5em" name={nextFruit.name} />
         </div>
       {/key}
     </div>
@@ -48,10 +48,6 @@
     justify-content: space-around;
     gap: 1em;
     padding: 1em;
-
-    @media screen and (max-width: 420px) {
-      flex-direction: row;
-    }
   }
 
   .section {
@@ -94,16 +90,5 @@
     border: var(--color-border-light) 1px solid;
     border-radius: 1em;
     padding: 0.125em 0.5em;
-  }
-
-  @media (max-width: 600px) {
-    .game-sidebar {
-      font-size: 14px;
-    }
-
-    .next-fruit-wrapper {
-      max-width: 35px;
-      display: flex;
-    }
   }
 </style>

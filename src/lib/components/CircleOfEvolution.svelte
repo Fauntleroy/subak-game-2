@@ -28,10 +28,6 @@
   .fruits {
     position: relative;
     padding: 10px 0;
-
-    @media screen and (max-width: 420px) {
-      padding: 0;
-    }
   }
 
   .fruitLoop {
@@ -42,24 +38,12 @@
     bottom: 0;
     left: 10px;
     border-radius: 25px;
-
-    @media screen and (max-width: 420px) {
-      top: 10px;
-      right: 0;
-      bottom: 10px;
-      left: 0;
-    }
   }
 
   .fruitGroups {
     position: relative;
     display: flex;
     gap: 15px;
-
-    @media screen and (max-width: 420px) {
-      flex-direction: column;
-      gap: 10px;
-    }
   }
 
   .fruitGroup {
@@ -70,15 +54,6 @@
 
     &:nth-child(even) {
       flex-direction: column-reverse;
-    }
-
-    @media screen and (max-width: 420px) {
-      flex-direction: row;
-      gap: 8px;
-
-      &:nth-child(even) {
-        flex-direction: row-reverse;
-      }
     }
   }
 </style>

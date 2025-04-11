@@ -104,84 +104,125 @@
   3. Keyboard and pointer event listeners provide the necessary interaction.
   This pattern is appropriate for custom game-like interfaces.
 -->
-<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-<div
-  class="game"
-  role="application"
-  aria-label="Fruit merging game area"
-  tabindex="0">
-  <div class="header"><GameHeader /></div>
-  <div class="sidebar"><GameSidebar /></div>
-
-  <!-- Game Container -->
+<div class="game-container">
   <div
-    class="gameplay-area"
-    bind:this={gameRef}
-    onpointerdown={handleClick}
-    onkeydown={handleKeyDown}
-    aria-hidden="true">
-    <!-- aria-hidden because the wrapper handles interaction -->
+    class="game responsive-font-size"
+    role="application"
+    aria-label="Fruit merging game area"
+    tabindex="0">
+    <div class="header"><GameHeader /></div>
+    <div class="sidebar"><GameSidebar /></div>
 
-    <div class="restricted-area"></div>
+    <!-- Game Container -->
+    <div
+      class="gameplay-area"
+      bind:this={gameRef}
+      onpointerdown={handleClick}
+      onkeydown={handleKeyDown}
+      aria-hidden="true">
+      <!-- aria-hidden because the wrapper handles interaction -->
 
-    <div class="drop-line" style:translate="{clampedMouseX - 1}px 0"></div>
+      <div class="restricted-area"></div>
 
-    <!-- Merge effects - Use effect.id as the key -->
-    {#each gameState.mergeEffects as effect (effect.id)}
-      <GameEntity x={effect.x} y={effect.y} scale={gameScale}>
-        <MergeEffect {...effect} radius={effect.radius * gameScale} />
-      </GameEntity>
-    {/each}
+      <div class="drop-line" style:translate="{clampedMouseX - 1}px 0"></div>
 
-    <!-- Preview fruit - Appears when not dropping -->
-    {#if !gameState.gameOver && !isDropping && currentFruit}
-      <div
-        class="preview-fruit"
-        aria-hidden="true"
-        style:translate="{clampedMouseX}px 0"
-        in:scale={{ opacity: 1, easing: expoOut, duration: 250 }}>
-        <!-- aria-hidden as it's purely visual feedback -->
-        <GameEntity x={0} y={GAME_OVER_HEIGHT / 2} scale={gameScale}>
-          <Fruit {...currentFruit} radius={currentFruit.radius * gameScale} />
+      <!-- Merge effects - Use effect.id as the key -->
+      {#each gameState.mergeEffects as effect (effect.id)}
+        <GameEntity x={effect.x} y={effect.y} scale={gameScale}>
+          <MergeEffect {...effect} radius={effect.radius * gameScale} />
         </GameEntity>
-      </div>
-    {/if}
+      {/each}
 
-    <!-- Rendered fruits - Use a unique identifier if available, otherwise index -->
-    <!-- Assuming FruitState doesn't have a stable ID, index might be necessary -->
-    <!-- If FruitState *does* get an ID (e.g., collider handle), use fruit.id -->
-    {#each gameState.fruitsState as fruitState, i (i)}
-      {@const fruit = FRUITS[fruitState.fruitIndex]}
-      <GameEntity
-        x={fruitState.x}
-        y={fruitState.y}
-        rotation={fruitState.rotation}
-        scale={gameScale}>
-        <Fruit {...fruit} radius={fruit.radius * gameScale} />
-      </GameEntity>
-    {/each}
+      <!-- Preview fruit - Appears when not dropping -->
+      {#if !gameState.gameOver && !isDropping && currentFruit}
+        <div
+          class="preview-fruit"
+          aria-hidden="true"
+          style:translate="{clampedMouseX}px 0"
+          in:scale={{ opacity: 1, easing: expoOut, duration: 250 }}>
+          <!-- aria-hidden as it's purely visual feedback -->
+          <GameEntity x={0} y={GAME_OVER_HEIGHT / 2} scale={gameScale}>
+            <Fruit {...currentFruit} radius={currentFruit.radius * gameScale} />
+          </GameEntity>
+        </div>
+      {/if}
 
-    <!-- Game Over Overlay -->
-    {#if gameState.gameOver}
-      <!-- Use role="alertdialog" for better semantics -->
-      <div
-        class="game-over"
-        role="alertdialog"
-        aria-labelledby="gameOverHeading">
-        <h2 id="gameOverHeading">Game Over!</h2>
-        <p>Final Score: {gameState.score}</p>
-        <!-- Ensure button is focusable -->
-        <button onclick={() => gameState.restartGame()}>Play Again</button>
-      </div>
-    {/if}
+      <!-- Rendered fruits - Use a unique identifier if available, otherwise index -->
+      <!-- Assuming FruitState doesn't have a stable ID, index might be necessary -->
+      <!-- If FruitState *does* get an ID (e.g., collider handle), use fruit.id -->
+      {#each gameState.fruitsState as fruitState, i (i)}
+        {@const fruit = FRUITS[fruitState.fruitIndex]}
+        <GameEntity
+          x={fruitState.x}
+          y={fruitState.y}
+          rotation={fruitState.rotation}
+          scale={gameScale}>
+          <Fruit {...fruit} radius={fruit.radius * gameScale} />
+        </GameEntity>
+      {/each}
+
+      <!-- Game Over Overlay -->
+      {#if gameState.gameOver}
+        <!-- Use role="alertdialog" for better semantics -->
+        <div
+          class="game-over"
+          role="alertdialog"
+          aria-labelledby="gameOverHeading">
+          <h2 id="gameOverHeading">Game Over!</h2>
+          <p>Final Score: {gameState.score}</p>
+          <!-- Ensure button is focusable -->
+          <button onclick={() => gameState.restartGame()}>Play Again</button>
+        </div>
+      {/if}
+    </div>
+
+    <!-- ScoreBoard Component -->
+    <!-- <ScoreBoard /> -->
   </div>
-
-  <!-- ScoreBoard Component -->
-  <!-- <ScoreBoard /> -->
 </div>
 
 <style>
+  .game-container {
+    container-type: inline-size;
+    width: clamp(420px, 100%, 700px);
+
+    --min-container-width: 420;
+    --max-container-width: 600;
+    --min-font-size-px: 12;
+    --max-font-size-px: 16;
+  }
+
+  .responsive-font-size {
+    /* Calculate the slope and intercept for the linear interpolation */
+    /* Slope = (max_font - min_font) / (max_width - min_width) */
+    --_slope: calc(
+      (var(--max-font-size-px) - var(--min-font-size-px)) /
+        (var(--max-container-width) - var(--min-container-width))
+    );
+
+    /* Intercept = min_font - slope * min_width */
+    /* Multiply by 1px here to ensure the result has a px unit */
+    --_intercept-px: calc(
+      var(--min-font-size-px) * 1px - var(--_slope) * var(--min-container-width) *
+        1px
+    );
+
+    /* Preferred value = intercept + slope * current_width (100cqi) */
+    /* The slope calculation results in a unitless number, */
+    /* multiplying by 1cqi gives it the correct dimension. */
+    --_preferred-value: calc(var(--_intercept-px) + var(--_slope) * 100cqi);
+
+    /* Apply clamp using the variables and calculated values */
+    font-size: clamp(
+      /* MIN: Multiply unitless variable by 1px */
+        calc(var(--min-font-size-px) * 1px),
+      /* PREFERRED: Use the calculated value */ var(--_preferred-value),
+      /* MAX: Multiply unitless variable by 1px */
+        calc(var(--max-font-size-px) * 1px)
+    );
+  }
+
   .game {
     --color-border: hsl(0, 0%, 75%);
     --color-border-light: hsl(0, 0%, 82.5%);
@@ -193,7 +234,7 @@
     --border-radius: 1em;
 
     display: grid;
-    grid-template-columns: minmax(100px, 150px) minmax(200px, 600px);
+    grid-template-columns: minmax(100px, 20cqi) minmax(200px, 600px);
     grid-template-areas: 'header header' 'sidebar gameplay';
     width: fit-content;
 
@@ -208,7 +249,6 @@
     border: 1px solid var(--color-border);
     border-radius: var(--border-radius);
 
-    font-size: 16px;
     font-family: Inter, sans-serif;
     font-optical-sizing: auto;
     font-style: normal;
@@ -253,11 +293,6 @@
       font-family: 'Azeret Mono', monospace;
       font-optical-sizing: auto;
       font-style: normal;
-    }
-
-    @media screen and (max-width: 420px) {
-      grid-template-columns: 1fr;
-      grid-template-areas: 'header' 'sidebar' 'gameplay';
     }
   }
 
