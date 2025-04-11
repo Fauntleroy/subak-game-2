@@ -48,7 +48,7 @@
   }
 
   .scores {
-    border: var(--color_light-border) 1px solid;
+    border: var(--color-border-light) 1px solid;
     border-radius: 10px;
   }
 

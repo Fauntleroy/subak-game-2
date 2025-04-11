@@ -301,7 +301,16 @@
     left: 0;
     height: 16.666%;
     width: 100%;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid var(--color-border-light);
+    background-image: repeating-linear-gradient(
+      -45deg,
+      /* Gradient direction */ var(--color-border-light) 0px,
+      /* Start color from 0px */ var(--color-border-light) 1px,
+      /* Color extends to 1px */ transparent 1px,
+      /* Transparent starts at 1px */ transparent 15px
+        /* Transparent extends to 3px (1px + 2px) */
+        /* The pattern repeats every 3px */
+    );
   }
 
   .drop-line {
