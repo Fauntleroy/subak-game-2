@@ -20,6 +20,7 @@
   import GameEntity from './GameEntity.svelte';
   import GameSidebar from './GameSidebar.svelte';
   import GameHeader from './GameHeader.svelte';
+  import GameOverModal from './GameOverModal.svelte';
 
   // Find game area width and cursor position
   let gameRef = $state<HTMLElement | null>(null);
@@ -95,6 +96,10 @@
       event.preventDefault(); // Prevent default spacebar scroll
     }
   }
+
+  function handleGameOverClose() {
+    gameState.restartGame();
+  }
 </script>
 
 <!--
@@ -161,24 +166,9 @@
           <Fruit {...fruit} radius={fruit.radius * gameScale} />
         </GameEntity>
       {/each}
-
-      <!-- Game Over Overlay -->
-      {#if gameState.gameOver}
-        <!-- Use role="alertdialog" for better semantics -->
-        <div
-          class="game-over"
-          role="alertdialog"
-          aria-labelledby="gameOverHeading">
-          <h2 id="gameOverHeading">Game Over!</h2>
-          <p>Final Score: {gameState.score}</p>
-          <!-- Ensure button is focusable -->
-          <button onclick={() => gameState.restartGame()}>Play Again</button>
-        </div>
-      {/if}
     </div>
 
-    <!-- ScoreBoard Component -->
-    <!-- <ScoreBoard /> -->
+    <GameOverModal open={gameState.gameOver} onClose={handleGameOverClose} />
   </div>
 </div>
 
@@ -355,23 +345,6 @@
     z-index: 1;
   }
 
-  .game-over {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 2rem;
-    border-radius: 8px;
-    text-align: center;
-    z-index: 10; /* Ensure it's above other elements */
-  }
-
-  .game-over h2 {
-    margin-top: 0;
-  }
-
   .sidebar {
     grid-area: sidebar;
   }
@@ -379,26 +352,5 @@
   .header {
     grid-area: header;
     border-bottom: var(--color-border-light) 1px solid;
-  }
-
-  button {
-    background: #4caf50;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 1.1rem;
-    margin-top: 1rem;
-  }
-
-  button:hover {
-    background: #45a049;
-  }
-
-  /* Add focus style for button */
-  button:focus-visible {
-    outline: 2px solid #ffffff;
-    outline-offset: 2px;
   }
 </style>
