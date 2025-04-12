@@ -1,6 +1,8 @@
-export const GAME_WIDTH = 600;
-export const GAME_HEIGHT = 900;
-export const WALL_THICKNESS = 10;
+export const GAME_WIDTH = 0.6; // meters
+export const GAME_HEIGHT = 0.9; // meters
+export const GAME_WIDTH_PX = 600;
+export const GAME_HEIGHT_PX = 900;
+export const WALL_THICKNESS = GAME_WIDTH / 20;
 export const MERGE_THRESHOLD = 100; // ms to detect if fruits are touching
 export const GAME_OVER_HEIGHT = GAME_HEIGHT / 6; // Y position above which game ends
 

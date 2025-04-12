@@ -18,9 +18,9 @@ import { AudioManager } from '../game/AudioManager.svelte';
 import { Boundary } from '../game/Boundary';
 
 // --- Constants for Volume Mapping ---
-const MIN_VELOCITY_FOR_SOUND = 50; // Ignore very gentle taps
-const MAX_VELOCITY_FOR_MAX_VOL = 100; // Velocity at which sound is loudest
-const MIN_COLLISION_VOLUME = 0.2; // Minimum volume for the quietest sound
+const MIN_VELOCITY_FOR_SOUND = 0.2; // Ignore very gentle taps
+const MAX_VELOCITY_FOR_MAX_VOL = 0.8; // Velocity at which sound is loudest
+const MIN_COLLISION_VOLUME = 0.3; // Minimum volume for the quietest sound
 const MAX_COLLISION_VOLUME = 1.0; // Maximum volume for the loudest sound
 // --- Pitch variation settings ---
 const PITCH_VARIATION_MIN = 0.9;
@@ -48,8 +48,6 @@ export interface MergeEffectData {
   radius: number;
   startTime: number;
   duration: number;
-  scale: number;
-  opacity: number;
 }
 export interface FruitState {
   x: number;
@@ -57,9 +55,6 @@ export interface FruitState {
   rotation: number;
   fruitIndex: number;
 }
-
-// Simple easing function
-const easeOutQuad = (t: number): number => t * (2 - t);
 
 export class GameState {
   audioManager: AudioManager | null = null;
@@ -74,7 +69,8 @@ export class GameState {
 
   mergeEffectIdCounter: number = 0;
 
-  lastTime: number = 0;
+  physicsAccumulator: number = 0;
+  lastTime: number | null = null;
   animationFrameId: number | null = null;
 
   physicsWorld: World | null = null;
@@ -104,6 +100,7 @@ export class GameState {
       }
       return;
     }
+
     this.stepPhysics(); // Run physics step
     this.throttledCheckGameOver?.(); // We done here?
     this.animationFrameId = requestAnimationFrame(() => this.update()); // Request next frame
@@ -115,7 +112,8 @@ export class GameState {
       await rapierInit();
       console.log('Rapier physics initialized.');
 
-      const gravity = new Vector2(0.0, 300);
+      // Why is this so far off of reality.
+      const gravity = new Vector2(0.0, 9.86 * 0.15);
       this.physicsWorld = new World(gravity);
       this.physicsWorld.integrationParameters.numSolverIterations = 8;
       this.eventQueue = new EventQueue(true); // Create event queue (true enables contact events)
@@ -142,12 +140,49 @@ export class GameState {
       return;
     }
 
-    const currentTime = performance.now() / 1000;
+    const currentTime = performance.now();
+    const physicsStepMs = this.physicsWorld.integrationParameters.dt * 1000;
+
+    this.physicsAccumulator += currentTime - (this.lastTime || 0);
+    while (this.physicsAccumulator >= physicsStepMs) {
+      this.physicsAccumulator -= physicsStepMs;
+      this.physicsWorld.step(this.eventQueue);
+      this.checkCollisions();
+    }
+
     this.lastTime = currentTime;
 
-    // --- Step 1: Step Physics and Drain Events ---
-    this.physicsWorld.step(this.eventQueue); // Step world AND populate event queue
+    // --- Step 3: Update Rendering State and Effects (mostly unchanged) ---
+    const updatedFruitStates: FruitState[] = this.fruits
+      .map((fruit) => {
+        if (!fruit.body.isValid()) return null;
+        return {
+          x: fruit.body.translation().x,
+          y: fruit.body.translation().y,
+          rotation: fruit.body.rotation(),
+          fruitIndex: fruit.fruitIndex
+        };
+      })
+      .filter((state): state is FruitState => state !== null);
+    this.setFruitsState(updatedFruitStates);
 
+    const newMergeEffects = this.mergeEffects
+      .map((effect: MergeEffectData) => {
+        const progress = (currentTime - effect.startTime) / effect.duration;
+
+        if (progress >= 1) return null;
+        return effect;
+      })
+      .filter((effect): effect is MergeEffectData => effect !== null);
+    this.setMergeEffects(newMergeEffects);
+  }
+
+  checkCollisions() {
+    if (!this.eventQueue) {
+      return;
+    }
+
+    const currentTime = performance.now();
     const mergePairs: { fruitA: Fruit; fruitB: Fruit }[] = [];
     const mergedHandlesThisStep = new Set<number>(); // Track handles involved in a merge *this step*
 
@@ -162,8 +197,6 @@ export class GameState {
       const collisionItemB = this.colliderMap.get(handle2);
 
       if (collisionItemA?.body && collisionItemB?.body && this.audioManager) {
-        const now = performance.now();
-
         // Apply random pitch variation
         const rate =
           PITCH_VARIATION_MIN +
@@ -205,7 +238,7 @@ export class GameState {
             this.audioManager.playSound('bump', { volume, rate });
 
             // Update the last play time
-            this.lastBumpSoundTime = now;
+            this.lastBumpSoundTime = currentTime;
           }
         }
       }
@@ -269,34 +302,6 @@ export class GameState {
         `Finished processing merges. Current fruits count: ${this.fruits.length}`
       );
     }
-
-    // --- Step 3: Update Rendering State and Effects (mostly unchanged) ---
-    const updatedFruitStates: FruitState[] = this.fruits
-      .map((fruit) => {
-        if (!fruit.body.isValid()) return null;
-        return {
-          x: fruit.body.translation().x,
-          y: fruit.body.translation().y,
-          rotation: fruit.body.rotation(),
-          fruitIndex: fruit.fruitIndex
-        };
-      })
-      .filter((state): state is FruitState => state !== null);
-    this.setFruitsState(updatedFruitStates);
-
-    const newMergeEffects = this.mergeEffects
-      .map((effect: MergeEffectData) => {
-        const progress = (currentTime - effect.startTime) / effect.duration;
-        if (progress >= 1) return null;
-        const eased = easeOutQuad(Math.min(progress, 1));
-        return {
-          ...effect,
-          scale: 1 + 4 * eased,
-          opacity: 0.5 * (1 - eased)
-        };
-      })
-      .filter((effect): effect is MergeEffectData => effect !== null);
-    this.setMergeEffects(newMergeEffects);
   }
 
   createWall(x: number, y: number, width: number, height: number): void {
@@ -361,10 +366,8 @@ export class GameState {
         x: midpoint.x,
         y: midpoint.y,
         radius: newFruitRadius,
-        startTime: performance.now() / 1000,
-        duration: 0.5,
-        scale: 1,
-        opacity: 0.5
+        startTime: performance.now(),
+        duration: 1000
       }
     ];
     this.setMergeEffects(newMergeEffects);
@@ -426,7 +429,7 @@ export class GameState {
 
     // Clear internal state
     this.fruits = [];
-    this.lastTime = 0;
+    this.lastTime = null;
     this.mergeEffectIdCounter = 0;
     this.dropCount = 0;
 

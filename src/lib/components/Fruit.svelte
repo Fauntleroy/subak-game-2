@@ -1,14 +1,21 @@
 <script lang="ts">
+  import { GAME_WIDTH, GAME_WIDTH_PX } from '../constants';
+
   interface FruitProps {
     radius: number | string;
     name: string;
     display?: 'block' | 'inline';
+    scale?: number;
   }
 
-  let { radius, name, display = 'block' }: FruitProps = $props();
+  let { radius, name, display = 'block', scale = 1 }: FruitProps = $props();
 
   const width = $derived.by(() => {
-    return Number.isFinite(radius) ? `${(radius as number) * 2}px` : radius;
+    const scaledGameWidthPx = GAME_WIDTH_PX * scale;
+    console.log('scaledGamewidthPx', scaledGameWidthPx, GAME_WIDTH_PX, scale);
+    return Number.isFinite(radius)
+      ? `${(((radius as number) * 2) / GAME_WIDTH) * scaledGameWidthPx}px`
+      : radius;
   });
 </script>
 

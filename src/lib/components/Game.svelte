@@ -11,7 +11,12 @@
   import { saveScore } from '../stores/db';
 
   // Import Constants and Types
-  import { GAME_WIDTH, GAME_OVER_HEIGHT, FRUITS } from '../constants';
+  import {
+    GAME_WIDTH,
+    GAME_WIDTH_PX,
+    GAME_OVER_HEIGHT,
+    FRUITS
+  } from '../constants';
 
   // Import Utilities
   import { clamp } from '../utils';
@@ -35,21 +40,18 @@
   // Find fruit data
   let currentFruit = $derived(FRUITS[gameState.currentFruitIndex]);
 
-  // Find game scale
-  let gameScale = $derived.by(() => {
-    const gameWidth = gameBoundingRect?.rect?.width || GAME_WIDTH;
-    return gameWidth / GAME_WIDTH;
+  let gameWidthPx = $derived(gameBoundingRect?.rect?.width || GAME_WIDTH_PX);
+  let gameScale = $derived(gameWidthPx / GAME_WIDTH_PX);
+
+  let clampedMouseX: number = $derived.by(() => {
+    const currentFruitRadius = currentFruit?.radius ?? 0.1; // Safety check
+    const radiusRatio = currentFruitRadius / GAME_WIDTH;
+    const radiusPx = radiusRatio * gameWidthPx;
+    // Update mouseX state, clamped within bounds
+    return clamp(cursorPosition.x, radiusPx, gameWidthPx - radiusPx);
   });
 
   let isDropping = $state(false);
-
-  let clampedMouseX: number = $derived.by(() => {
-    const currentFruitRadius = currentFruit?.radius ?? 0; // Safety check
-    const scaledRadius = currentFruitRadius * gameScale;
-    const scaledWidth = GAME_WIDTH * gameScale;
-    // Update mouseX state, clamped within bounds
-    return clamp(cursorPosition.x, scaledRadius, scaledWidth - scaledRadius);
-  });
 
   // Save score when game is over
   $effect(() => {
@@ -66,12 +68,11 @@
   function dropCurrentFruit() {
     if (gameState.gameOver || isDropping) return;
 
-    // const currentFruit = FRUITS[gameState.currentFruitIndex];
-
     isDropping = true;
+
     gameState.dropFruit(
       gameState.currentFruitIndex,
-      clampedMouseX / gameScale,
+      (clampedMouseX / gameWidthPx) * GAME_WIDTH,
       GAME_OVER_HEIGHT / 2
     );
 
@@ -148,7 +149,10 @@
           in:scale={{ opacity: 1, easing: expoOut, duration: 250 }}>
           <!-- aria-hidden as it's purely visual feedback -->
           <GameEntity x={0} y={GAME_OVER_HEIGHT / 2} scale={gameScale}>
-            <Fruit {...currentFruit} radius={currentFruit.radius * gameScale} />
+            <Fruit
+              {...currentFruit}
+              radius={currentFruit.radius}
+              scale={gameScale} />
           </GameEntity>
         </div>
       {/if}
