@@ -298,9 +298,7 @@
     flex-shrink: 1;
     aspect-ratio: 2 / 3;
     position: relative;
-    box-shadow:
-      inset 0px 0px 5px 0px rgba(0, 0, 0, 0.125),
-      inset 0 2px 0px 0px rgba(0, 0, 0, 0.1);
+    box-shadow: inset hsla(0, 0%, 0%, 0.2) 0 2px 2px;
     background-color: rgba(0, 0, 0, 0.025);
 
     /* Removed cursor: pointer as interaction is on wrapper */
@@ -314,11 +312,11 @@
     left: 0;
     height: 16.666%;
     width: 100%;
-    border-bottom: 1px solid var(--color-border-light);
+    border-bottom: 1px solid hsla(0, 0%, 0%, 0.075);
     background-image: repeating-linear-gradient(
       -45deg,
-      /* Gradient direction */ var(--color-border-light) 0px,
-      /* Start color from 0px */ var(--color-border-light) 1px,
+      /* Gradient direction */ hsla(0, 0%, 0%, 0.075) 0px,
+      /* Start color from 0px */ hsla(0, 0%, 0%, 0.075) 1px,
       /* Color extends to 1px */ transparent 1px,
       /* Transparent starts at 1px */ transparent 15px
         /* Transparent extends to 3px (1px + 2px) */
@@ -347,10 +345,10 @@
 
   .sidebar {
     grid-area: sidebar;
+    border-top: var(--color-border-light) 1px solid;
   }
 
   .header {
     grid-area: header;
-    border-bottom: var(--color-border-light) 1px solid;
   }
 </style>

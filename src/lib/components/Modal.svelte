@@ -95,9 +95,7 @@
     background: var(--color-background-light);
     color: var(--color-text); /* Or your desired modal background */
     border-radius: 8px; /* Optional: rounded corners */
-    box-shadow:
-      0 20px 5px -10px rgba(0, 0, 0, 0.075),
-      0 2px 0px 0px rgba(0, 0, 0, 0.1); /* Optional: shadow */
+    box-shadow: hsla(0, 0%, 0%, 0.2) 0 2px 2px;
 
     /* Positioning and Sizing */
     position: absolute; /* Needed for z-index and centering */

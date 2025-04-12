@@ -68,9 +68,7 @@
     grid-template-areas: 'main';
     align-items: center;
     justify-items: center;
-    box-shadow:
-      inset 0px 0px 5px 0px rgba(0, 0, 0, 0.125),
-      inset 0 2px 0px 0px rgba(0, 0, 0, 0.1);
+    box-shadow: inset hsla(0, 0%, 0%, 0.2) 0 2px 2px;
     background-color: rgba(0, 0, 0, 0.025);
     border-radius: 2em;
     padding: 0.75em 1em;
