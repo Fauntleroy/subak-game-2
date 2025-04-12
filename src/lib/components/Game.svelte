@@ -237,6 +237,7 @@
     grid-template-columns: minmax(100px, 20cqi) minmax(200px, 600px);
     grid-template-areas: 'header header' 'sidebar gameplay';
     width: fit-content;
+    min-width: 380px;
 
     position: relative;
     overflow: hidden;
