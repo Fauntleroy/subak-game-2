@@ -216,8 +216,9 @@
   .game {
     --color-border: hsl(0, 0%, 75%);
     --color-border-light: hsl(0, 0%, 82.5%);
-    --color-background: hsl(0, 0%, 92.5%);
+    --color-background: hsl(0, 0%, 93%);
     --color-background-light: hsl(0, 0%, 99%);
+    --color-background-dark: hsl(0, 0%, 89%);
     --color-text: hsl(0, 0%, 20%);
     --color-light-text: hsl(0, 0%, 35%);
     --color-very-light-text: hsl(0, 0%, 50%);
@@ -299,7 +300,7 @@
     aspect-ratio: 2 / 3;
     position: relative;
     box-shadow: inset hsla(0, 0%, 0%, 0.2) 0 2px 2px;
-    background-color: rgba(0, 0, 0, 0.025);
+    background-color: var(--color-background-dark);
 
     /* Removed cursor: pointer as interaction is on wrapper */
     user-select: none;

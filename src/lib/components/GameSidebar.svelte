@@ -69,7 +69,7 @@
     align-items: center;
     justify-items: center;
     box-shadow: inset hsla(0, 0%, 0%, 0.2) 0 2px 2px;
-    background-color: rgba(0, 0, 0, 0.025);
+    background-color: var(--color-background-dark);
     border-radius: 2em;
     padding: 0.75em 1em;
     overflow: hidden;
