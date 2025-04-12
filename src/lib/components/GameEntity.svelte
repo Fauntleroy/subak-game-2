@@ -15,5 +15,6 @@
 <style>
   .game-entity {
     position: absolute;
+    will-change: translate, rotate;
   }
 </style>
