@@ -27,12 +27,12 @@ export class AudioManager {
   constructor() {
     this.loadSound(
       'bump',
-      '/sounds/bump.wav',
+      './sounds/bump.wav',
       { volume: 0.8, preload: true },
       50 // Specific cooldown for bump sound (50ms)
     );
 
-    this.loadSound('pop', '/sounds/pop.wav', {
+    this.loadSound('pop', './sounds/pop.wav', {
       volume: 0.8,
       preload: true
     });

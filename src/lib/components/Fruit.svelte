@@ -22,7 +22,7 @@
 <div
   class="fruit"
   style:width
-  style:background-image="url('/fruits/{name}.png')"
+  style:background-image="url('./fruits/{name}.png')"
   style:display={display === 'inline' ? 'inline-block' : display}>
 </div>
 
