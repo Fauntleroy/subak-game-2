@@ -5,6 +5,7 @@
   import { onMount } from 'svelte';
   import Leaderboard from './Leaderboard.svelte';
   import Fruit from './Fruit.svelte';
+  import { gameState } from '../stores/game.svelte';
 
   const { open, onClose } = $props();
 
@@ -17,6 +18,10 @@
   function handleStartClick() {
     onClose();
   }
+
+  const startButtonText = $derived(
+    gameState.gameOver ? 'Start Game' : 'Resume Game'
+  );
 </script>
 
 <Modal {open} {onClose}>
@@ -33,7 +38,7 @@
         display="inline" />.
     </div>
     <Leaderboard scores={highScores} />
-    <button onclick={handleStartClick}>Start Game</button>
+    <button onclick={handleStartClick}>{startButtonText}</button>
   </div>
 </Modal>
 

@@ -1,4 +1,7 @@
 <script lang="ts">
+  import { quadOut } from 'svelte/easing';
+  import { fade, scale } from 'svelte/transition';
+
   // --- Props ---
   // `open`: Controls the visibility of the modal (bindable)
   // `onClose`: Callback function triggered when the modal requests to be closed
@@ -59,23 +62,36 @@
 
 <!-- Custom Backdrop: Only rendered when the modal should be open -->
 {#if open}
-  <div class="custom-backdrop" onclick={requestClose} aria-hidden="true"></div>
+  <div
+    class="custom-backdrop"
+    onclick={requestClose}
+    aria-hidden="true"
+    in:fade={{ easing: quadOut, duration: 250 }}
+    out:fade={{ easing: quadOut, duration: 250, delay: 100 }}>
+  </div>
 {/if}
 
 <!-- The Dialog Element -->
 <dialog bind:this={dialogRef}>
-  <div class="modal-content">
-    <!-- Close Button -->
-    <button
-      class="close-button"
-      onclick={requestClose}
-      aria-label="Close dialog">
-      &times; <!-- Multiplication sign often used for 'close' -->
-    </button>
+  {#if open}
+    <div
+      class="modal-body"
+      in:scale={{ easing: quadOut, duration: 400, delay: 100, start: 0.9 }}
+      out:scale={{ easing: quadOut, duration: 400, start: 0.9 }}>
+      <div class="modal-content">
+        <!-- Close Button -->
+        <button
+          class="close-button"
+          onclick={requestClose}
+          aria-label="Close dialog">
+          &times; <!-- Multiplication sign often used for 'close' -->
+        </button>
 
-    <!-- Slot for user content -->
-    {@render children()}
-  </div>
+        <!-- Slot for user content -->
+        {@render children()}
+      </div>
+    </div>
+  {/if}
 </dialog>
 
 <style>
@@ -92,10 +108,7 @@
     /* Reset browser defaults */
     padding: 0;
     border: none;
-    background: var(--color-background-light);
-    color: var(--color-text); /* Or your desired modal background */
-    border-radius: 8px; /* Optional: rounded corners */
-    box-shadow: hsla(0, 0%, 0%, 0.2) 0 2px 2px;
+    background: none;
 
     /* Positioning and Sizing */
     position: absolute; /* Needed for z-index and centering */
@@ -123,6 +136,13 @@
   /* Hide the default ::backdrop pseudo-element provided by <dialog> */
   dialog::backdrop {
     display: none;
+  }
+
+  .modal-body {
+    background: var(--color-background-light);
+    color: var(--color-text); /* Or your desired modal background */
+    border-radius: 8px; /* Optional: rounded corners */
+    box-shadow: hsla(0, 0%, 0%, 0.2) 0 2px 2px;
   }
 
   .modal-content {

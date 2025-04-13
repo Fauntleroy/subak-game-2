@@ -12,7 +12,7 @@
 
   const width = $derived.by(() => {
     const scaledGameWidthPx = GAME_WIDTH_PX * scale;
-    console.log('scaledGamewidthPx', scaledGameWidthPx, GAME_WIDTH_PX, scale);
+
     return Number.isFinite(radius)
       ? `${(((radius as number) * 2) / GAME_WIDTH) * scaledGameWidthPx}px`
       : radius;

@@ -118,11 +118,7 @@ export class GameState {
       this.physicsWorld.integrationParameters.numSolverIterations = 8;
       this.eventQueue = new EventQueue(true); // Create event queue (true enables contact events)
       this.colliderMap.clear(); // Ensure map is clear on init
-
-      // Create walls (walls don't need collision events for merging)
-      this.createWall(0, GAME_HEIGHT / 2, WALL_THICKNESS, GAME_HEIGHT);
-      this.createWall(GAME_WIDTH, GAME_HEIGHT / 2, WALL_THICKNESS, GAME_HEIGHT);
-      this.createWall(GAME_WIDTH / 2, GAME_HEIGHT, GAME_WIDTH, WALL_THICKNESS);
+      this.createBounds();
 
       console.log('Physics world and event queue created and set.');
     } catch (error) {
@@ -302,6 +298,28 @@ export class GameState {
         `Finished processing merges. Current fruits count: ${this.fruits.length}`
       );
     }
+  }
+
+  createBounds() {
+    // Create walls (walls don't need collision events for merging)
+    this.createWall(
+      WALL_THICKNESS / -2,
+      GAME_HEIGHT / 2,
+      WALL_THICKNESS,
+      GAME_HEIGHT
+    ); // left
+    this.createWall(
+      GAME_WIDTH + WALL_THICKNESS / 2,
+      GAME_HEIGHT / 2,
+      WALL_THICKNESS,
+      GAME_HEIGHT
+    ); // right
+    this.createWall(
+      GAME_WIDTH / 2,
+      GAME_HEIGHT + WALL_THICKNESS / 2,
+      GAME_WIDTH,
+      WALL_THICKNESS
+    ); // floor
   }
 
   createWall(x: number, y: number, width: number, height: number): void {

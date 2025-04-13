@@ -22,7 +22,6 @@ export function useCursorPosition(): {
 
   // Effect to manage all listeners and update cache
   $effect(() => {
-    console.log('effect firing', ref);
     const element = ref; // Capture current value
 
     if (!element) {
@@ -92,7 +91,6 @@ export function useCursorPosition(): {
       return y;
     },
     set ref(el) {
-      console.log('setting ref...', el);
       ref = el;
     }
   };
