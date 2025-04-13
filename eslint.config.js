@@ -7,7 +7,7 @@ import svelteConfig from './svelte.config.js';
 
 export default tsEslint.config(
   {
-    ignores: ['dist/**']
+    ignores: ['dist/**', 'docs/**']
   },
   js.configs.recommended,
   ...tsEslint.configs.recommended,
