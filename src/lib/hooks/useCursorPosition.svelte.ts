@@ -1,12 +1,13 @@
 /**
- * Tracks the mouse cursor's position relative to a target HTML element,
- * optimizing by caching the element's bounding rectangle.
+ * Tracks the mouse cursor's or primary touch point's position relative
+ * to a target HTML element, optimizing by caching the element's
+ * bounding rectangle.
  *
- * @returns A tuple containing:
- *   - A $state variable to bind to the target element (`bind:this`).
- *   - A $state store containing the cursor's relative { x, y } coordinates
- *     (or { x: null, y: null } if the element isn't set or the mouse
- *     hasn't entered it).
+ * @returns An object containing:
+ *   - `ref`: A property to bind to the target element (`bind:this={hook.ref}`).
+ *   - `x`: A reactive state variable for the relative horizontal coordinate.
+ *   - `y`: A reactive state variable for the relative vertical coordinate.
+ *     (Coordinates are 0 if the element isn't set or interaction hasn't occurred).
  */
 export function useCursorPosition(): {
   ref: HTMLElement | null;
@@ -41,28 +42,47 @@ export function useCursorPosition(): {
     // --- Initial cache update ---
     updateRect();
 
-    // --- Mouse Move Handler (uses cached rect) ---
-    const handleMouseMove = (event: MouseEvent) => {
+    // --- Shared Position Update Logic ---
+    const updatePosition = (clientX: number, clientY: number) => {
       if (!cachedRect) {
         // Should ideally not happen if element exists, but safety check
         updateRect(); // Update if somehow null
         if (!cachedRect) return; // Still null? Bail.
       }
-
       // Calculate position relative to the element's cached top-left corner
-      x = event.clientX - cachedRect.left;
-      y = event.clientY - cachedRect.top;
+      x = clientX - cachedRect.left;
+      y = clientY - cachedRect.top;
     };
 
-    // --- Mouse Leave Handler ---
-    // const handleMouseLeave = () => {
-    //   cursorPosition.x = null;
-    //   cursorPosition.y = null;
-    // };
+    // --- Mouse Move Handler ---
+    const handleMouseMove = (event: MouseEvent) => {
+      updatePosition(event.clientX, event.clientY);
+    };
+
+    // --- Touch Start Handler (updates position immediately on touch) ---
+    const handleTouchStart = (event: TouchEvent) => {
+      if (event.touches.length > 0) {
+        const touch = event.touches[0];
+        updatePosition(touch.clientX, touch.clientY);
+      }
+    };
+
+    // --- Touch Move Handler ---
+    const handleTouchMove = (event: TouchEvent) => {
+      // Prevent default scroll/zoom behavior while tracking inside the element
+      event.preventDefault();
+
+      if (event.touches.length > 0) {
+        const touch = event.touches[0];
+        updatePosition(touch.clientX, touch.clientY);
+      }
+    };
 
     // --- Add Listeners ---
     element.addEventListener('mousemove', handleMouseMove);
-    // element.addEventListener('mouseleave', handleMouseLeave);
+    element.addEventListener('touchstart', handleTouchStart, { passive: true }); // Can be passive
+    element.addEventListener('touchmove', handleTouchMove, { passive: false }); // Must be active to preventDefault
+
     // Listen to window scroll and resize to update the cached rect
     // Use { passive: true } for scroll/resize for better performance
     window.addEventListener('scroll', updateRect, { passive: true });
@@ -72,7 +92,8 @@ export function useCursorPosition(): {
     return () => {
       // console.log("Cleaning up listeners for:", element); // For debugging
       element.removeEventListener('mousemove', handleMouseMove);
-      // element.removeEventListener('mouseleave', handleMouseLeave);
+      element.removeEventListener('touchstart', handleTouchStart);
+      element.removeEventListener('touchmove', handleTouchMove);
       window.removeEventListener('scroll', updateRect);
       window.removeEventListener('resize', updateRect);
       // Reset cache on cleanup as well
@@ -80,18 +101,19 @@ export function useCursorPosition(): {
     };
   }); // Dependencies: ref
 
+  // Return reactive getters and a setter for the ref
   return {
     get ref() {
       return ref;
+    },
+    set ref(el: HTMLElement | null) {
+      ref = el;
     },
     get x() {
       return x;
     },
     get y() {
       return y;
-    },
-    set ref(el) {
-      ref = el;
     }
   };
 }

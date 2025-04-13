@@ -124,7 +124,7 @@
     <div
       class="gameplay-area"
       bind:this={gameRef}
-      onpointerdown={handleClick}
+      onpointerup={handleClick}
       onkeydown={handleKeyDown}
       aria-hidden="true">
       <!-- aria-hidden because the wrapper handles interaction -->
