@@ -80,7 +80,9 @@ export function useCursorPosition(): {
 
     // --- Add Listeners ---
     element.addEventListener('mousemove', handleMouseMove);
-    element.addEventListener('touchstart', handleTouchStart, { passive: true }); // Can be passive
+    element.addEventListener('touchstart', handleTouchStart, {
+      passive: false
+    }); // Can be passive
     element.addEventListener('touchmove', handleTouchMove, { passive: false }); // Must be active to preventDefault
 
     // Listen to window scroll and resize to update the cached rect

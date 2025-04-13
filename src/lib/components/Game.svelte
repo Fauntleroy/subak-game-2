@@ -309,6 +309,7 @@
     /* Removed cursor: pointer as interaction is on wrapper */
     user-select: none;
     overflow: hidden;
+    touch-action: none;
   }
 
   .restricted-area {
