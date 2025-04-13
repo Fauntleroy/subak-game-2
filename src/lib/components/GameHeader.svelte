@@ -18,7 +18,7 @@
   }
 
   function handleMuteClick() {
-    gameState.audioManager.toggleMute();
+    gameState.audioManager?.toggleMute();
   }
 </script>
 

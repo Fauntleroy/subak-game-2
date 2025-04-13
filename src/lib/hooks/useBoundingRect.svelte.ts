@@ -1,8 +1,8 @@
 import { onMount } from 'svelte';
 
 export function useBoundingRect() {
-  let ref = $state<HTMLElement | null>(null);
-  let rect = $state();
+  let ref: HTMLElement | null = $state(null);
+  let rect: DOMRect | null = $state(null);
 
   const update = () => {
     if (!ref) return;

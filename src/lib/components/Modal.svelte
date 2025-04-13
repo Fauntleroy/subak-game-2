@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   // --- Props ---
   // `open`: Controls the visibility of the modal (bindable)
   // `onClose`: Callback function triggered when the modal requests to be closed
@@ -7,7 +7,7 @@
 
   // --- State ---
   // Reference to the dialog DOM element
-  let dialogRef = $state(null);
+  let dialogRef: HTMLDialogElement | null = $state(null);
 
   // --- Effects ---
   // Effect to synchronize the `open` prop with the dialog's state

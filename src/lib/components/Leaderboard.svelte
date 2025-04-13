@@ -1,9 +1,15 @@
 <script lang="ts">
   // Define props using Svelte 5 $props rune
-  type Props = {
-    scores: unknown;
-  };
-  let { scores }: Props = $props();
+  interface Score {
+    id: number;
+    score: number;
+    date: Date;
+  }
+
+  interface LeaderboardProps {
+    scores: Score[];
+  }
+  let { scores }: LeaderboardProps = $props();
 
   // Date formatter remains the same
   const formatter = new Intl.DateTimeFormat('en-US', {
