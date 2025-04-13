@@ -45,7 +45,6 @@ node_modules/
 .env.*.local
 
 # Vite build output
-dist/
 build/
 
 # Cache directories
@@ -64,6 +63,3 @@ build/
 # OS-specific files
 .DS_Store
 Thumbs.db
-
-# Compiled files we don't need in the repo
-dist/
