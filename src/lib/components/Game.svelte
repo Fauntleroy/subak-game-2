@@ -2,13 +2,22 @@
   import { scale } from 'svelte/transition';
   import { expoOut } from 'svelte/easing';
 
+  // Import Stores and Types
+  import { gameState } from '../stores/game.svelte.ts';
+  import { saveScore } from '../stores/db';
+
+  // Import Utilities
+  import { clamp } from '../utils';
+  import { useCursorPosition } from '../hooks/useCursorPosition.svelte.ts';
+  import { useBoundingRect } from '../hooks/useBoundingRect.svelte.ts';
+
   // Import Components
   import Fruit from './Fruit.svelte';
   import MergeEffect from './MergeEffect.svelte';
-
-  // Import Stores and Types
-  import { gameState } from '../stores/game.svelte';
-  import { saveScore } from '../stores/db';
+  import GameEntity from './GameEntity.svelte';
+  import GameSidebar from './GameSidebar.svelte';
+  import GameHeader from './GameHeader.svelte';
+  import GameOverModal from './GameOverModal.svelte';
 
   // Import Constants and Types
   import {
@@ -17,15 +26,6 @@
     GAME_OVER_HEIGHT,
     FRUITS
   } from '../constants';
-
-  // Import Utilities
-  import { clamp } from '../utils';
-  import { useCursorPosition } from '../hooks/useCursorPosition.svelte';
-  import { useBoundingRect } from '../hooks/useBoundingRect.svelte';
-  import GameEntity from './GameEntity.svelte';
-  import GameSidebar from './GameSidebar.svelte';
-  import GameHeader from './GameHeader.svelte';
-  import GameOverModal from './GameOverModal.svelte';
 
   // Find game area width and cursor position
   let gameRef = $state<HTMLElement | null>(null);
