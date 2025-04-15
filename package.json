@@ -1,5 +1,5 @@
 {
-  "name": "subak-game",
+  "name": "subak-game-2",
   "description": "A game where you drop and merge fruit to make larger fruit.",
   "version": "1.0.0",
   "type": "module",
@@ -11,6 +11,12 @@
       "svelte": "./dist/index.js"
     }
   },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "vite build",

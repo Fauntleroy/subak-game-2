@@ -3,13 +3,13 @@
   import { expoOut } from 'svelte/easing';
 
   // Import Stores and Types
-  import { gameState } from '../stores/game.svelte.ts';
+  import { gameState } from '../stores/game.svelte.js';
   import { saveScore } from '../stores/db';
 
   // Import Utilities
   import { clamp } from '../utils';
-  import { useCursorPosition } from '../hooks/useCursorPosition.svelte.ts';
-  import { useBoundingRect } from '../hooks/useBoundingRect.svelte.ts';
+  import { useCursorPosition } from '../hooks/useCursorPosition.svelte.js';
+  import { useBoundingRect } from '../hooks/useBoundingRect.svelte.js';
 
   // Import Components
   import Fruit from './Fruit.svelte';
