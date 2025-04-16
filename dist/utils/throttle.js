@@ -17,18 +17,13 @@
  * @returns {Function} Returns the new throttled function.
  */
 export function throttle(func, waitMs) {
-    var lastExecutionTime = 0;
-    var lastResult;
+    let lastExecutionTime = 0;
+    let lastResult;
     // The returned throttled function
-    return function throttled() {
-        var args = []; // Capture arguments
-        for (var _i = 0 // Capture arguments
-        ; _i < arguments.length // Capture arguments
-        ; _i++ // Capture arguments
-        ) {
-            args[_i] = arguments[_i]; // Capture arguments
-        }
-        var currentTime = performance.now();
+    return function throttled(// Capture 'this' context
+    ...args // Capture arguments
+    ) {
+        const currentTime = performance.now();
         // Check if enough time has passed since the last execution
         if (currentTime - lastExecutionTime >= waitMs) {
             lastExecutionTime = currentTime; // Record the time of this execution

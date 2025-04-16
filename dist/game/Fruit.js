@@ -1,13 +1,21 @@
-import { ActiveEvents, RigidBodyDesc, ColliderDesc } from '@dimforge/rapier2d-compat'; // Or @dimforge/rapier3d
+import { ActiveEvents, RigidBody, RigidBodyDesc, Collider, ColliderDesc, World } from '@dimforge/rapier2d-compat'; // Or @dimforge/rapier3d
 import { FRUITS, GAME_OVER_HEIGHT } from '../constants';
-var currentIdNumber = 1;
-var Fruit = /** @class */ (function () {
-    function Fruit(fruitIndex, x, y, physicsWorld) {
-        this.startOutOfBounds = null;
-        this.outOfBounds = false;
-        var fruitData = FRUITS[fruitIndex];
+let currentIdNumber = 1;
+export class Fruit {
+    id;
+    name;
+    radius;
+    points;
+    fruitIndex; // Index in FRUIT_CATALOG
+    body; // Reference to the physics body
+    collider;
+    physicsWorld; // Reference to the physics body
+    startOutOfBounds = null;
+    outOfBounds = false;
+    constructor(fruitIndex, x, y, physicsWorld) {
+        const fruitData = FRUITS[fruitIndex];
         if (!fruitData) {
-            throw new Error("Invalid fruitIndex: ".concat(fruitIndex));
+            throw new Error(`Invalid fruitIndex: ${fruitIndex}`);
         }
         this.id = currentIdNumber++;
         this.fruitIndex = fruitIndex;
@@ -15,12 +23,12 @@ var Fruit = /** @class */ (function () {
         this.radius = fruitData.radius;
         this.points = fruitData.points;
         this.physicsWorld = physicsWorld;
-        var bodyDesc = RigidBodyDesc.dynamic()
+        const bodyDesc = RigidBodyDesc.dynamic()
             .setTranslation(x, y)
             .setLinearDamping(0.2)
             .setAngularDamping(0.4);
         this.body = this.physicsWorld.createRigidBody(bodyDesc);
-        var colliderDesc = ColliderDesc.ball(this.radius)
+        const colliderDesc = ColliderDesc.ball(this.radius)
             .setRestitution(0.25)
             .setFriction(0.5)
             .setMass(0.0125)
@@ -47,9 +55,9 @@ var Fruit = /** @class */ (function () {
         //   console.warn("Could not find collider to attach Fruit instance to userData");
         // }
     }
-    Fruit.prototype.isOutOfBounds = function () {
+    isOutOfBounds() {
         // otherwise, set the out of bounds flags
-        var topOfFruitY = this.body.translation().y - this.radius;
+        const topOfFruitY = this.body.translation().y - this.radius;
         if (this.body.isValid() && topOfFruitY < GAME_OVER_HEIGHT) {
             // we've been out of bounds for a while.
             if (this.startOutOfBounds &&
@@ -66,26 +74,24 @@ var Fruit = /** @class */ (function () {
             this.startOutOfBounds = null;
         }
         return false;
-    };
+    }
     // Helper to get current position from the physics body
-    Fruit.prototype.getPosition = function () {
+    getPosition() {
         // Use RAPIER.Vector2 or RAPIER.Vector3 based on your import
         return this.body.translation();
-    };
+    }
     // Helper to get current rotation from the physics body
-    Fruit.prototype.getRotation = function () {
+    getRotation() {
         // Return type depends on 2D (number) or 3D (RAPIER.Rotation)
         return this.body.rotation();
-    };
+    }
     // Method to handle cleanup when the fruit is removed
-    Fruit.prototype.destroy = function () {
-        console.log("Destroying physics body for ".concat(this.name));
+    destroy() {
+        console.log(`Destroying physics body for ${this.name}`);
         // Remove the associated rigid body from the physics world
         this.physicsWorld.removeRigidBody(this.body);
         // The Fruit instance itself will be removed from the fruitsInPlay array separately.
         // We don't nullify this.body here as the instance might be briefly
         // held elsewhere before garbage collection.
-    };
-    return Fruit;
-}());
-export { Fruit };
+    }
+}

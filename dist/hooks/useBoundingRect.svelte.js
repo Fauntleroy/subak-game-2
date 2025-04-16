@@ -1,19 +1,19 @@
 import { onMount } from 'svelte';
 export function useBoundingRect() {
-    var ref = $state(null);
-    var rect = $state(null);
-    var update = function () {
+    let ref = $state(null);
+    let rect = $state(null);
+    const update = () => {
         if (!ref)
             return;
         rect = ref.getBoundingClientRect();
     };
-    onMount(function () {
+    onMount(() => {
         window.addEventListener('resize', update);
         window.addEventListener('scroll', update);
         update();
     });
     // so... when ref changes, fire
-    $effect(function () {
+    $effect(() => {
         update();
     });
     return {
@@ -26,6 +26,6 @@ export function useBoundingRect() {
         set ref(el) {
             ref = el;
         },
-        update: update
+        update
     };
 }

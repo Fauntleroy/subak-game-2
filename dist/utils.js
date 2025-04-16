@@ -9,7 +9,7 @@ export function getDistance(x1, y1, x2, y2) {
 }
 // Checks if two circles are overlapping
 export function areCirclesOverlapping(x1, y1, r1, x2, y2, r2) {
-    var distance = getDistance(x1, y1, x2, y2);
+    const distance = getDistance(x1, y1, x2, y2);
     return distance < r1 + r2;
 }
 // Calculates the midpoint between two points
@@ -39,8 +39,8 @@ export function formatDate(date) {
 }
 // Calculates points based on merged fruit sizes
 export function calculateMergePoints(fruitIndex) {
-    var basePoints = FRUITS[fruitIndex].points;
-    var multiplier = Math.floor(fruitIndex / 2) + 1;
+    const basePoints = FRUITS[fruitIndex].points;
+    const multiplier = Math.floor(fruitIndex / 2) + 1;
     return basePoints * multiplier;
 }
 // Checks if a position would result in a valid fruit placement

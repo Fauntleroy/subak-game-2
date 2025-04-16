@@ -10,14 +10,14 @@
  *     (Coordinates are 0 if the element isn't set or interaction hasn't occurred).
  */
 export function useCursorPosition() {
-    var ref = $state(null);
-    var x = $state(0);
-    var y = $state(0);
+    let ref = $state(null);
+    let x = $state(0);
+    let y = $state(0);
     // Cache the element's bounding rectangle
-    var cachedRect = $state(null);
+    let cachedRect = $state(null);
     // Effect to manage all listeners and update cache
-    $effect(function () {
-        var element = ref; // Capture current value
+    $effect(() => {
+        const element = ref; // Capture current value
         if (!element) {
             // Reset position and cache if element is removed or not yet set
             x = 0;
@@ -26,14 +26,14 @@ export function useCursorPosition() {
             return; // No element, nothing to listen to
         }
         // --- Function to update the cached rectangle ---
-        var updateRect = function () {
+        const updateRect = () => {
             cachedRect = element.getBoundingClientRect();
             // console.log("Updated Rect Cache:", cachedRect); // For debugging
         };
         // --- Initial cache update ---
         updateRect();
         // --- Shared Position Update Logic ---
-        var updatePosition = function (clientX, clientY) {
+        const updatePosition = (clientX, clientY) => {
             if (!cachedRect) {
                 // Should ideally not happen if element exists, but safety check
                 updateRect(); // Update if somehow null
@@ -45,22 +45,22 @@ export function useCursorPosition() {
             y = clientY - cachedRect.top;
         };
         // --- Mouse Move Handler ---
-        var handleMouseMove = function (event) {
+        const handleMouseMove = (event) => {
             updatePosition(event.clientX, event.clientY);
         };
         // --- Touch Start Handler (updates position immediately on touch) ---
-        var handleTouchStart = function (event) {
+        const handleTouchStart = (event) => {
             if (event.touches.length > 0) {
-                var touch = event.touches[0];
+                const touch = event.touches[0];
                 updatePosition(touch.clientX, touch.clientY);
             }
         };
         // --- Touch Move Handler ---
-        var handleTouchMove = function (event) {
+        const handleTouchMove = (event) => {
             // Prevent default scroll/zoom behavior while tracking inside the element
             event.preventDefault();
             if (event.touches.length > 0) {
-                var touch = event.touches[0];
+                const touch = event.touches[0];
                 updatePosition(touch.clientX, touch.clientY);
             }
         };
@@ -75,7 +75,7 @@ export function useCursorPosition() {
         window.addEventListener('scroll', updateRect, { passive: true });
         window.addEventListener('resize', updateRect, { passive: true });
         // --- Cleanup Function ---
-        return function () {
+        return () => {
             // console.log("Cleaning up listeners for:", element); // For debugging
             element.removeEventListener('mousemove', handleMouseMove);
             element.removeEventListener('touchstart', handleTouchStart);
