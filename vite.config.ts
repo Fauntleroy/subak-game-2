@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
+import { viteStaticCopy } from 'vite-plugin-static-copy';
 
 export default defineConfig({
   base: './',
@@ -23,6 +24,14 @@ export default defineConfig({
       compilerOptions: {
         hydratable: false
       }
+    }),
+    viteStaticCopy({
+      targets: [
+        {
+          src: 'public/*',
+          dest: 'assets'
+        }
+      ]
     })
   ]
 });

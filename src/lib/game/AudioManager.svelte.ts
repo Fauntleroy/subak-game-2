@@ -1,6 +1,8 @@
 // AudioManager.ts
 import { Howl, Howler } from 'howler';
 
+import { SOUNDS_PATH } from '../constants';
+
 // Optional configuration for loading sounds
 interface SoundConfig {
   volume?: number;
@@ -27,12 +29,12 @@ export class AudioManager {
   constructor() {
     this.loadSound(
       'bump',
-      './sounds/bump.wav',
+      `${SOUNDS_PATH}/bump.wav`,
       { volume: 0.8, preload: true },
       50 // Specific cooldown for bump sound (50ms)
     );
 
-    this.loadSound('pop', './sounds/pop.wav', {
+    this.loadSound('pop', `${SOUNDS_PATH}/pop.wav`, {
       volume: 0.8,
       preload: true
     });

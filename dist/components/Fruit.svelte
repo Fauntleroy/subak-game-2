@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { GAME_WIDTH, GAME_WIDTH_PX } from '../constants';
+  import { GAME_WIDTH, GAME_WIDTH_PX, IMAGES_PATH } from '../constants';
 
   interface FruitProps {
     radius: number | string;
@@ -22,7 +22,7 @@
 <div
   class="fruit"
   style:width
-  style:background-image="url('./fruits/{name}.png')"
+  style:background-image="url('{IMAGES_PATH}/fruits/{name}.png')"
   style:display={display === 'inline' ? 'inline-block' : display}>
 </div>
 
