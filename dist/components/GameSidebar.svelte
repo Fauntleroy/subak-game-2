@@ -88,17 +88,13 @@
     font-size: 1.5em;
     border: var(--color-border-light) 1px solid;
     border-radius: 1em;
-    padding: 0.125em 0.5em;
+    padding: 0.5em 0.75em;
   }
 
   @media (max-width: 420px) {
     .game-sidebar {
       flex-direction: row;
       flex-wrap: wrap;
-    }
-
-    .section {
-      flex-direction: row;
     }
   }
 </style>

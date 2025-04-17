@@ -10633,7 +10633,7 @@ function aE(B, A) {
   })), TA(B, K);
 }
 Zw();
-var Zs = /* @__PURE__ */ XA('<div class="fruitGroup svelte-18xxhi9"></div>'), Os = /* @__PURE__ */ XA('<div class="fruits svelte-18xxhi9"><div class="fruitLoop svelte-18xxhi9"></div> <div class="fruitGroups svelte-18xxhi9"></div></div>');
+var Zs = /* @__PURE__ */ XA('<div class="fruitGroup svelte-6bc3s0"></div>'), Os = /* @__PURE__ */ XA('<div class="fruits svelte-6bc3s0"><div class="fruitLoop svelte-6bc3s0"></div> <div class="fruitGroups svelte-6bc3s0"></div></div>');
 function js(B, A) {
   XI(A, !1);
   const I = Math.ceil(NI.length / 2), C = [
@@ -10794,7 +10794,7 @@ function _s(B, A) {
   var i = Xs(), o = oA(i);
   vI(() => Vg(o, O(C))), TA(B, i), _I();
 }
-var Ps = /* @__PURE__ */ XA('<div class="next-fruit-wrapper svelte-1pyhd4q"><!></div>'), Vs = /* @__PURE__ */ XA('<div class="game-sidebar svelte-1pyhd4q"><section class="section svelte-1pyhd4q" aria-live="polite"><h5 class="section__heading svelte-1pyhd4q">Next</h5> <div class="next-fruit svelte-1pyhd4q"><!></div></section> <section class="section svelte-1pyhd4q" aria-live="polite"><h5 class="section__heading svelte-1pyhd4q">Score</h5> <var class="score svelte-1pyhd4q"><!></var></section> <section class="section svelte-1pyhd4q"><h5 class="section__heading svelte-1pyhd4q">Cycle</h5> <!></section></div>');
+var Ps = /* @__PURE__ */ XA('<div class="next-fruit-wrapper svelte-7vc9in"><!></div>'), Vs = /* @__PURE__ */ XA('<div class="game-sidebar svelte-7vc9in"><section class="section svelte-7vc9in" aria-live="polite"><h5 class="section__heading svelte-7vc9in">Next</h5> <div class="next-fruit svelte-7vc9in"><!></div></section> <section class="section svelte-7vc9in" aria-live="polite"><h5 class="section__heading svelte-7vc9in">Score</h5> <var class="score svelte-7vc9in"><!></var></section> <section class="section svelte-7vc9in"><h5 class="section__heading svelte-7vc9in">Cycle</h5> <!></section></div>');
 function zs(B, A) {
   XI(A, !0);
   let I = _A(() => NI[xA.nextFruitIndex]);
@@ -11053,7 +11053,7 @@ function eh(B, A) {
 function Kh(B, A) {
   (B.key === "Enter" || B.key === " ") && (A(), B.preventDefault());
 }
-var rh = /* @__PURE__ */ XA('<div class="preview-fruit svelte-p1zp1k" aria-hidden="true"><!></div>'), Nh = /* @__PURE__ */ XA('<div class="game-container svelte-p1zp1k"><div class="game responsive-font-size svelte-p1zp1k" role="application" aria-label="Fruit merging game area" tabindex="0"><div class="header svelte-p1zp1k"><!></div> <div class="sidebar svelte-p1zp1k"><!></div> <div class="gameplay-area svelte-p1zp1k" aria-hidden="true"><div class="restricted-area svelte-p1zp1k"></div> <div class="drop-line svelte-p1zp1k"></div> <!> <!>  <!></div> <!></div></div>');
+var rh = /* @__PURE__ */ XA('<div class="preview-fruit svelte-fk6inb" aria-hidden="true"><!></div>'), Nh = /* @__PURE__ */ XA('<div class="game-container svelte-fk6inb"><div class="game responsive-font-size svelte-fk6inb" role="application" aria-label="Fruit merging game area" tabindex="0"><div class="header svelte-fk6inb"><!></div> <div class="sidebar svelte-fk6inb"><!></div> <div class="gameplay-area svelte-fk6inb" aria-hidden="true"><div class="restricted-area svelte-fk6inb"></div> <div class="drop-line svelte-fk6inb"></div> <!> <!>  <!></div> <!></div></div>');
 function dh(B, A) {
   XI(A, !0);
   let I = FA(null), C = Ts(), i = bs();

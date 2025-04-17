@@ -179,11 +179,11 @@
 <style>
   .game-container {
     container-type: inline-size;
-    width: clamp(420px, 100%, 700px);
+    width: clamp(100px, 100%, 700px);
 
-    --min-container-width: 420;
+    --min-container-width: 100;
     --max-container-width: 600;
-    --min-font-size-px: 12;
+    --min-font-size-px: 2;
     --max-font-size-px: 16;
   }
 

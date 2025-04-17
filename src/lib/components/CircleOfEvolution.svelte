@@ -43,13 +43,13 @@
   .fruitGroups {
     position: relative;
     display: flex;
-    gap: 15px;
+    gap: 0.75em;
   }
 
   .fruitGroup {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 0.75em;
     justify-content: center;
 
     &:nth-child(even) {
