@@ -270,18 +270,41 @@
       align-items: center;
       justify-content: center;
       height: 2em;
-      background: var(--color-background);
+      background-color: var(--color-background);
       border: none;
       border-radius: 0.5em;
       padding: 0.25em 0.75em;
       color: var(--color-text);
       box-shadow:
-        0px 2px 5px 0px rgba(0, 0, 0, 0.125),
-        0 2px 0px 0px rgba(0, 0, 0, 0.1);
+        0px 0px 0px 1px rgba(0, 0, 0, 0.125),
+        0px 0px 0px 1px rgba(0, 0, 0, 0.1),
+        inset 0px 1px 0px 0px rgba(255, 255, 255, 0.95);
       cursor: pointer;
+      transition:
+        background-color 250ms,
+        box-shadow 250ms,
+        translate 250ms;
 
       &:hover {
-        background: var(--color-background-light);
+        background-color: var(--color-background-light);
+        translate: 0px -2px;
+        box-shadow:
+          0px 2px 0px 1px rgba(0, 0, 0, 0.125),
+          0px 0px 0px 1px rgba(0, 0, 0, 0.1),
+          inset 0px 1px 0px 0px rgba(255, 255, 255, 0.95);
+        transition:
+          background-color 100ms,
+          box-shadow 100ms,
+          translate 100ms;
+      }
+
+      &:active {
+        background-color: var(--color-background-dark);
+        translate: 0px 0px;
+        box-shadow:
+          0px 0px 0px 1px rgba(0, 0, 0, 0.125),
+          0px 0px 0px 1px rgba(0, 0, 0, 0.1),
+          inset 0px 1px 0px 0px rgba(255, 255, 255, 0.95);
       }
     }
 

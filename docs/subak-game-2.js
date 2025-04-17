@@ -11053,7 +11053,7 @@ function eh(B, A) {
 function Kh(B, A) {
   (B.key === "Enter" || B.key === " ") && (A(), B.preventDefault());
 }
-var rh = /* @__PURE__ */ XA('<div class="preview-fruit svelte-17t95x2" aria-hidden="true"><!></div>'), Nh = /* @__PURE__ */ XA('<div class="game-container svelte-17t95x2"><div class="game responsive-font-size svelte-17t95x2" role="application" aria-label="Fruit merging game area" tabindex="0"><div class="header svelte-17t95x2"><!></div> <div class="sidebar svelte-17t95x2"><!></div> <div class="gameplay-area svelte-17t95x2" aria-hidden="true"><div class="restricted-area svelte-17t95x2"></div> <div class="drop-line svelte-17t95x2"></div> <!> <!>  <!></div> <!></div></div>');
+var rh = /* @__PURE__ */ XA('<div class="preview-fruit svelte-bhpsp5" aria-hidden="true"><!></div>'), Nh = /* @__PURE__ */ XA('<div class="game-container svelte-bhpsp5"><div class="game responsive-font-size svelte-bhpsp5" role="application" aria-label="Fruit merging game area" tabindex="0"><div class="header svelte-bhpsp5"><!></div> <div class="sidebar svelte-bhpsp5"><!></div> <div class="gameplay-area svelte-bhpsp5" aria-hidden="true"><div class="restricted-area svelte-bhpsp5"></div> <div class="drop-line svelte-bhpsp5"></div> <!> <!>  <!></div> <!></div></div>');
 function dh(B, A) {
   XI(A, !0);
   let I = FA(null), C = Ts(), i = bs();
