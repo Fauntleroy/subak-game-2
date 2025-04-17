@@ -90,4 +90,15 @@
     border-radius: 1em;
     padding: 0.125em 0.5em;
   }
+
+  @media (max-width: 420px) {
+    .game-sidebar {
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+
+    .section {
+      flex-direction: row;
+    }
+  }
 </style>

@@ -56,4 +56,29 @@
       flex-direction: column-reverse;
     }
   }
+
+  @media (max-width: 420px) {
+    .fruits {
+      padding: 0 10px;
+    }
+
+    .fruitLoop {
+      top: 0.75em;
+      right: 0;
+      bottom: 0.75em;
+      left: 0;
+    }
+
+    .fruitGroups {
+      flex-direction: column;
+    }
+
+    .fruitGroup {
+      flex-direction: row;
+
+      &:nth-child(even) {
+        flex-direction: row-reverse;
+      }
+    }
+  }
 </style>

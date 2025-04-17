@@ -231,8 +231,7 @@
     display: grid;
     grid-template-columns: minmax(100px, 20cqi) minmax(200px, 600px);
     grid-template-areas: 'header header' 'sidebar gameplay';
-    width: fit-content;
-    min-width: 380px;
+    width: minmax(fit-content, 100%);
 
     position: relative;
     overflow: hidden;
@@ -250,14 +249,9 @@
     font-style: normal;
     font-weight: 400;
 
-    &::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      z-index: 100;
-      pointer-events: none;
-      opacity: 0.25;
-      mix-blend-mode: color-dodge;
+    @media (max-width: 420px) {
+      grid-template-columns: 1fr;
+      grid-template-areas: 'sidebar' 'gameplay' 'header';
     }
 
     :global(b, strong, h1, h2, h3, h4, h5, h6) {
