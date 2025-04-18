@@ -1,179 +1,133 @@
 <script lang="ts">
   import { quadOut } from 'svelte/easing';
   import { fade, scale } from 'svelte/transition';
-  // Removed: import { uniqueId } from 'lodash-es';
-
-  // --- Module-level counter for unique IDs ---
-  let popoverCounter = 0;
+  import { onDestroy } from 'svelte';
 
   // --- Props ---
-  // `open`: Controls the visibility of the popover (bindable)
-  // `onClose`: Callback function triggered when the popover requests to be closed
-  // `children`: Slot content for the popover body
+  // `open`: Controls the visibility of the modal (bindable)
+  // `onClose`: Callback function triggered when the modal requests to be closed
+  // `children`: Slot content for the modal body
   let { open = false, onClose = () => {}, children } = $props();
 
-  // --- State ---
-  // Reference to the popover DOM element
-  let popoverRef: HTMLDivElement | null = $state(null);
-  // Unique ID for the popover element using the module counter
-  const popoverId = `popover-${popoverCounter++}`; // Increment counter for next instance
-
   // --- Effects ---
-  // Effect to synchronize the `open` prop with the popover's state
+  // Effect to handle the ESC key press for closing the modal
   $effect(() => {
-    const popover = popoverRef;
-    if (!popover) return; // Wait for the element to be bound
+    // Only add listener if the modal is open
+    if (!open) return;
 
-    // Check the actual current state of the popover
-    const isCurrentlyOpen = popover.matches(':popover-open');
-
-    try {
-      if (open && !isCurrentlyOpen) {
-        // Prop says open, but popover isn't -> show it
-        popover.showPopover();
-      } else if (!open && isCurrentlyOpen) {
-        // Prop says closed, but popover is open -> hide it
-        popover.hidePopover();
-      }
-    } catch (e) {
-      // showPopover/hidePopover can throw if the state is already correct
-      // or if called incorrectly (e.g., on non-popover element).
-      // We can usually ignore these errors in this sync logic.
-      // console.warn("Popover state sync error (likely harmless):", e);
-    }
-  });
-
-  // Effect to listen for the native 'toggle' event on the popover
-  // This handles closing via the ESC key or potential future API interactions.
-  $effect(() => {
-    const popover = popoverRef;
-    if (!popover) return;
-
-    const handleNativeToggle = (event: ToggleEvent) => {
-      // When the popover toggles natively (e.g., ESC),
-      // check if it's now closed.
-      if (event.newState === 'closed') {
-        // If it closed AND our controlling prop `open` is still true,
-        // it means the closure was initiated *natively* (like ESC).
-        // We must call onClose() to sync the parent's state.
-        if (open) {
-          onClose();
-        }
+    const handleKeydown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        requestClose();
       }
     };
 
-    popover.addEventListener('toggle', handleNativeToggle);
+    // Add listener when modal opens
+    window.addEventListener('keydown', handleKeydown);
 
-    // Cleanup listener when the component unmounts or popoverRef changes
+    // Cleanup listener when the modal closes or component unmounts
     return () => {
-      popover.removeEventListener('toggle', handleNativeToggle);
+      window.removeEventListener('keydown', handleKeydown);
     };
   });
 
   // --- Functions ---
-  // Function to request closing the popover (used by button and backdrop)
+  // Function to request closing the modal (used by button and backdrop)
   function requestClose() {
     // Call the provided callback; the parent component is responsible
-    // for actually changing the `open` prop to false, which triggers
-    // the $effect above to call `hidePopover()`.
+    // for actually changing the `open` prop to false.
     onClose();
   }
 </script>
 
-<!-- 
-  Although popover has a ::backdrop, we use a custom one here 
-  to easily apply Svelte transitions exactly like the original dialog.
-  The custom backdrop also handles the "light dismiss" click.
--->
+<!-- Render the modal structure only when `open` is true -->
 {#if open}
-  <div
-    class="custom-backdrop"
-    onclick={requestClose}
-    aria-hidden="true"
-    in:fade={{ easing: quadOut, duration: 250 }}
-    out:fade={{ easing: quadOut, duration: 250, delay: 100 }}>
-  </div>
-{/if}
-
-<div
-  bind:this={popoverRef}
-  popover="auto"
-  id={popoverId}
-  class="popover-container">
-  {#if open}
+  <!-- 
+    Modal Wrapper: Handles positioning (absolute) and centering.
+    It sits above the backdrop.
+  -->
+  <div class="modal-wrapper" aria-modal="true" role="dialog">
+    <!-- 
+      Custom Backdrop: Sits behind the modal content but within the wrapper.
+      Handles click-outside-to-close.
+    -->
     <div
-      class="popover-body"
+      class="custom-backdrop"
+      onclick={requestClose}
+      aria-hidden="true"
+      in:fade={{ easing: quadOut, duration: 250 }}
+      out:fade={{ easing: quadOut, duration: 250, delay: 100 }}>
+    </div>
+
+    <!-- 
+      Modal Body: Contains the actual content and transitions.
+      Sits visually on top of the backdrop.
+      Needs `pointer-events: auto` to be interactive.
+    -->
+    <div
+      class="modal-body"
       in:scale={{ easing: quadOut, duration: 400, delay: 100, start: 0.9 }}
       out:scale={{ easing: quadOut, duration: 400, start: 0.9 }}>
-      <div class="popover-content">
+      <div class="modal-content">
+        <!-- Close Button -->
         <button
           class="close-button"
           onclick={requestClose}
-          aria-label="Close popover">
-          &times;
+          aria-label="Close dialog">
+          &times; <!-- Multiplication sign often used for 'close' -->
         </button>
 
+        <!-- Slot for user content -->
         {@render children()}
       </div>
     </div>
-  {/if}
-</div>
+  </div>
+{/if}
 
 <style>
-  .custom-backdrop {
-    position: absolute;
+  .modal-wrapper {
+    position: absolute; /* Cover the viewport */
     inset: 0;
+    z-index: 1000; /* High z-index to be on top */
+    display: flex; /* Use flexbox for centering */
+    align-items: center;
+    justify-content: center;
+    /* Add padding to prevent modal touching edges */
+    padding: 2em;
+    /* Allow clicks to pass through the wrapper to the backdrop */
+    pointer-events: none;
+  }
+
+  .custom-backdrop {
+    position: absolute; /* Position relative to the wrapper */
+    inset: 0; /* Cover the entire wrapper */
     background-color: var(--color-background); /* Or your backdrop color */
     opacity: 0.9;
     backdrop-filter: blur(10px);
-    z-index: 10; /* Below the popover */
+    z-index: 1; /* Behind the modal body */
+    pointer-events: auto; /* Make backdrop clickable */
   }
 
-  /* The popover container itself */
-  .popover-container {
-    /* Reset browser defaults */
-    padding: 0;
-    border: none;
-    background: none; /* Popover content has background */
-    overflow: visible; /* Allow scaled content to show */
+  .modal-body {
+    /* Reset pointer events to make the modal interactive */
+    pointer-events: auto;
+    position: relative; /* Position relative to the wrapper, above backdrop */
+    z-index: 2; /* Above the backdrop */
 
-    /* Positioning and Sizing (similar to dialog) */
-    position: absolute;
-    inset: 0;
-    z-index: 20; /* Above the backdrop */
-    margin: auto; /* Center horizontally and vertically */
-    width: fit-content; /* Size based on content */
-    height: fit-content;
-    max-width: calc(100% - 4em);
-    max-height: calc(100% - 4em);
-
-    /* Use :popover-open pseudo-class */
-    & :popover-open {
-      opacity: 1;
-      transform: scale(1);
-      /* Note: Direct transitions on the popover element itself can be tricky
-         with show/hidePopover. Applying transitions to inner content is safer. */
-    }
-  }
-
-  /* Hide the native ::backdrop if you don't want it interfering */
-  .popover-container::backdrop {
-    display: none;
-  }
-
-  .popover-body {
+    /* Visual Styling */
     background: var(--color-background-light);
     color: var(--color-text);
     border-radius: 8px;
     box-shadow: hsla(0, 0%, 0%, 0.2) 0 2px 2px;
-    max-width: 100%; /* Ensure body respects container max-width */
-    max-height: 100%; /* Ensure body respects container max-height */
-    overflow: auto; /* Allow scrolling *within* the body if content exceeds size */
+
+    /* Sizing and Scrolling */
+    max-width: 100%; /* Respect wrapper padding */
+    max-height: 100%; /* Respect wrapper padding */
+    overflow: auto; /* Allow scrolling if content exceeds size */
   }
 
-  .popover-content {
-    padding: 1.5em;
-    position: relative;
+  .modal-content {
+    padding: 1.5em; /* Internal padding for content */
+    position: relative; /* Needed for absolute positioning of close button */
   }
 
   .close-button {
@@ -188,15 +142,10 @@
     padding: 0.2em;
     color: #666;
     transition: color 0.2s;
+    z-index: 3; /* Ensure button is clickable */
   }
 
   .close-button:hover {
     color: #000;
-  }
-
-  /* Ensure popover is not displayed when closed */
-  /* This might be redundant with show/hidePopover, but good practice */
-  .popover-container:not(:popover-open) {
-    display: none;
   }
 </style>
