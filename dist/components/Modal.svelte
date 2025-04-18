@@ -100,14 +100,12 @@
   popover="auto"
   id={popoverId}
   class="popover-container">
-  <!-- Transitions applied to the inner content when `open` changes -->
   {#if open}
     <div
       class="popover-body"
       in:scale={{ easing: quadOut, duration: 400, delay: 100, start: 0.9 }}
       out:scale={{ easing: quadOut, duration: 400, start: 0.9 }}>
       <div class="popover-content">
-        <!-- Close Button -->
         <button
           class="close-button"
           onclick={requestClose}
@@ -115,7 +113,6 @@
           &times;
         </button>
 
-        <!-- Slot for user content -->
         {@render children()}
       </div>
     </div>
@@ -124,7 +121,7 @@
 
 <style>
   .custom-backdrop {
-    position: absolute; /* Use fixed to cover viewport regardless of scroll */
+    position: absolute;
     inset: 0;
     background-color: var(--color-background); /* Or your backdrop color */
     opacity: 0.9;
@@ -141,7 +138,7 @@
     overflow: visible; /* Allow scaled content to show */
 
     /* Positioning and Sizing (similar to dialog) */
-    position: fixed; /* Use fixed for modal-like behavior */
+    position: absolute;
     inset: 0;
     z-index: 20; /* Above the backdrop */
     margin: auto; /* Center horizontally and vertically */
