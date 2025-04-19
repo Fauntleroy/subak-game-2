@@ -2,7 +2,7 @@ import { init as rapierInit, Vector2, World, EventQueue // Import EventQueue
  } from '@dimforge/rapier2d-compat';
 import { Fruit } from '../game/Fruit';
 import { FRUITS, // Assuming FRUITS is typed like: { radius: number; points: number }[]
-GAME_WIDTH, GAME_HEIGHT, WALL_THICKNESS } from '../constants'; // Ensure constants are correctly typed in their file
+GAME_WIDTH, GAME_HEIGHT, WALL_THICKNESS, DEFAULT_IMAGES_PATH, DEFAULT_SOUNDS_PATH } from '../constants'; // Ensure constants are correctly typed in their file
 import { throttle } from '../utils/throttle';
 import { AudioManager } from '../game/AudioManager.svelte';
 import { Boundary } from '../game/Boundary';
@@ -37,10 +37,17 @@ export class GameState {
     eventQueue = null;
     colliderMap = new Map();
     lastBumpSoundTime = 0;
+    // Configuration
+    imagesPath = DEFAULT_IMAGES_PATH;
+    soundsPath = DEFAULT_SOUNDS_PATH;
     throttledCheckGameOver;
-    constructor() {
+    constructor({ imagesPath, soundsPath }) {
         (async () => {
-            this.audioManager = new AudioManager();
+            if (imagesPath)
+                this.imagesPath = imagesPath;
+            if (soundsPath)
+                this.soundsPath = soundsPath;
+            this.audioManager = new AudioManager({ soundsPath });
             this.throttledCheckGameOver = throttle(this.checkGameOver, 500);
             await this.initPhysics();
             this.resetGame();
@@ -354,5 +361,7 @@ export class GameState {
     setMergeEffects(newMergeEffects) {
         this.mergeEffects = newMergeEffects;
     }
+    destroy() {
+        console.log('destroy Game State');
+    }
 }
-export const gameState = new GameState();

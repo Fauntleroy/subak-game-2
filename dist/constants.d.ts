@@ -14,5 +14,5 @@ export interface FruitData {
     points: number;
 }
 export declare const FRUITS: FruitData[];
-export declare const IMAGES_PATH: any;
-export declare const SOUNDS_PATH: any;
+export declare const DEFAULT_IMAGES_PATH = "/images";
+export declare const DEFAULT_SOUNDS_PATH = "/sounds";

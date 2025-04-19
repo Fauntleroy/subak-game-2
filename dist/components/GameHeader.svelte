@@ -1,11 +1,11 @@
 <!-- App.svelte -->
 <script>
-  import { gameState } from '../stores/game.svelte';
-
   import SoundOn from '../icons/sound-on.svelte';
   import SoundOff from '../icons/sound-off.svelte';
   import IntroductionModal from './IntroductionModal.svelte';
   import Fruit from './Fruit.svelte';
+
+  const { gameState } = $props();
 
   let showIntroduction = $state(true);
 
@@ -18,7 +18,7 @@
   }
 
   function handleMuteClick() {
-    gameState.audioManager?.toggleMute();
+    gameState?.audioManager?.toggleMute();
   }
 </script>
 
@@ -31,7 +31,7 @@
   </div>
   <div class="trailing">
     <button onclick={handleMuteClick}>
-      {#if gameState.audioManager?.isMuted}
+      {#if gameState?.audioManager?.isMuted}
         <SoundOff />
       {:else}
         <SoundOn />
@@ -40,7 +40,10 @@
   </div>
 </header>
 
-<IntroductionModal open={showIntroduction} onClose={handleCloseIntroduction} />
+<IntroductionModal
+  open={showIntroduction}
+  gameOver={gameState?.gameOver}
+  onClose={handleCloseIntroduction} />
 
 <style>
   .app-title {

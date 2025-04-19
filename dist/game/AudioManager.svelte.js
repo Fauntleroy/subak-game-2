@@ -1,6 +1,5 @@
 // AudioManager.ts
 import { Howl, Howler } from 'howler';
-import { SOUNDS_PATH } from '../constants';
 export class AudioManager {
     sounds = {};
     soundCooldowns = {}; // Tracks last play time
@@ -8,10 +7,10 @@ export class AudioManager {
     get isAudioContextReady() {
         return Howler.ctx?.state === 'running';
     }
-    constructor() {
-        this.loadSound('bump', `${SOUNDS_PATH}/bump.wav`, { volume: 0.8, preload: true }, 50 // Specific cooldown for bump sound (50ms)
+    constructor({ soundsPath }) {
+        this.loadSound('bump', `${soundsPath}/bump.wav`, { volume: 0.8, preload: true }, 50 // Specific cooldown for bump sound (50ms)
         );
-        this.loadSound('pop', `${SOUNDS_PATH}/pop.wav`, {
+        this.loadSound('pop', `${soundsPath}/pop.wav`, {
             volume: 0.8,
             preload: true
         });

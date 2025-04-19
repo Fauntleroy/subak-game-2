@@ -32,5 +32,5 @@ for (let i = 0; i < FRUIT_NAMES.length; i++) {
     });
     currentSize = currentSize * 1.25;
 }
-export const IMAGES_PATH = window.__SUBAK_IMAGES_PATH ?? '/images';
-export const SOUNDS_PATH = window.__SUBAK_SOUNDS_PATH ?? '/sounds';
+export const DEFAULT_IMAGES_PATH = '/images';
+export const DEFAULT_SOUNDS_PATH = '/sounds';

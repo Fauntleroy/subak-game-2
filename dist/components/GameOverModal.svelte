@@ -1,13 +1,12 @@
 <script lang="ts">
-  import { getHighScores } from '../stores/db';
   import { onMount } from 'svelte';
 
-  import { gameState } from '../stores/game.svelte';
+  import { getHighScores } from '../stores/db';
 
   import Modal from './Modal.svelte';
   import Leaderboard from './Leaderboard.svelte';
 
-  const { open, onClose } = $props();
+  const { open, score, onClose } = $props();
 
   let highScores = $state([]);
 
@@ -23,7 +22,7 @@
 <Modal {open} {onClose}>
   <div class="content">
     <h2 class="heading">Thanks for playing!</h2>
-    <div>Your score was <strong><var>{gameState.score}</var></strong></div>
+    <div>Your score was <strong><var>{score}</var></strong></div>
 
     <Leaderboard scores={highScores} />
 

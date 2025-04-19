@@ -1,5 +1,7 @@
 <script lang="ts">
-  import { GAME_WIDTH, GAME_WIDTH_PX, IMAGES_PATH } from '../constants';
+  import { getContext } from 'svelte';
+
+  import { GAME_WIDTH, GAME_WIDTH_PX } from '../constants';
 
   interface FruitProps {
     radius: number | string;
@@ -9,6 +11,8 @@
   }
 
   let { radius, name, display = 'block', scale = 1 }: FruitProps = $props();
+
+  const imagesPath = getContext('imagesPath');
 
   const width = $derived.by(() => {
     const scaledGameWidthPx = GAME_WIDTH_PX * scale;
@@ -22,7 +26,7 @@
 <div
   class="fruit"
   style:width
-  style:background-image="url('{IMAGES_PATH}/fruits/{name}.png')"
+  style:background-image="url('{imagesPath}/fruits/{name}.png')"
   style:display={display === 'inline' ? 'inline-block' : display}>
 </div>
 

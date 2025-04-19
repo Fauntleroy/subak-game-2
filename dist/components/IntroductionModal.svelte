@@ -1,13 +1,14 @@
 <script lang="ts">
+  import { getContext } from 'svelte';
+
   import Modal from './Modal.svelte';
 
   import { getHighScores } from '../stores/db';
   import { onMount } from 'svelte';
   import Leaderboard from './Leaderboard.svelte';
   import Fruit from './Fruit.svelte';
-  import { gameState } from '../stores/game.svelte';
 
-  const { open, onClose } = $props();
+  const { open, gameOver, onClose } = $props();
 
   let highScores = $state([]);
 
@@ -19,9 +20,7 @@
     onClose();
   }
 
-  const startButtonText = $derived(
-    gameState.gameOver ? 'Start Game' : 'Resume Game'
-  );
+  const startButtonText = $derived(gameOver ? 'Start Game' : 'Resume Game');
 </script>
 
 <Modal {open} {onClose}>

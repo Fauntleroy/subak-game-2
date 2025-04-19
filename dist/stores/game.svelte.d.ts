@@ -16,6 +16,10 @@ export interface FruitState {
     rotation: number;
     fruitIndex: number;
 }
+interface GameStateProps {
+    imagesPath?: string;
+    soundsPath?: string;
+}
 export declare class GameState {
     audioManager: AudioManager | null;
     score: number;
@@ -34,8 +38,10 @@ export declare class GameState {
     eventQueue: EventQueue | null;
     colliderMap: Map<number, Fruit | Boundary>;
     lastBumpSoundTime: DOMHighResTimeStamp;
+    imagesPath: string;
+    soundsPath: string;
     throttledCheckGameOver?: () => void;
-    constructor();
+    constructor({ imagesPath, soundsPath }: GameStateProps);
     update(): void;
     initPhysics(): Promise<void>;
     stepPhysics(): void;
@@ -57,5 +63,6 @@ export declare class GameState {
     setFruitsState(newFruits: FruitState[]): void;
     setDropCount(newDropCount: number): void;
     setMergeEffects(newMergeEffects: MergeEffectData[]): void;
+    destroy(): void;
 }
-export declare const gameState: GameState;
+export {};

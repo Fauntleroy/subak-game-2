@@ -1,8 +1,6 @@
 // AudioManager.ts
 import { Howl, Howler } from 'howler';
 
-import { SOUNDS_PATH } from '../constants';
-
 // Optional configuration for loading sounds
 interface SoundConfig {
   volume?: number;
@@ -17,6 +15,10 @@ interface PlayOptions {
   // Add other Howler play options if needed
 }
 
+interface AudioManagerProps {
+  soundsPath?: string;
+}
+
 export class AudioManager {
   private sounds: Record<string, Howl> = {};
   private soundCooldowns: Record<string, number> = {}; // Tracks last play time
@@ -26,15 +28,15 @@ export class AudioManager {
     return Howler.ctx?.state === 'running';
   }
 
-  constructor() {
+  constructor({ soundsPath }: AudioManagerProps) {
     this.loadSound(
       'bump',
-      `${SOUNDS_PATH}/bump.wav`,
+      `${soundsPath}/bump.wav`,
       { volume: 0.8, preload: true },
       50 // Specific cooldown for bump sound (50ms)
     );
 
-    this.loadSound('pop', `${SOUNDS_PATH}/pop.wav`, {
+    this.loadSound('pop', `${soundsPath}/pop.wav`, {
       volume: 0.8,
       preload: true
     });

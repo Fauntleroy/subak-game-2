@@ -2,15 +2,15 @@
   import { quadOut } from 'svelte/easing';
   import { fly } from 'svelte/transition';
 
-  import { gameState } from '../stores/game.svelte';
-
   import Fruit from './Fruit.svelte';
   import CircleOfEvolution from './CircleOfEvolution.svelte';
 
   import { FRUITS } from '../constants';
   import InterpolatingNumber from './InterpolatingNumber.svelte';
 
-  let nextFruit = $derived(FRUITS[gameState.nextFruitIndex]);
+  const { gameState } = $props();
+
+  let nextFruit = $derived(FRUITS[gameState?.nextFruitIndex] ?? null);
 </script>
 
 <div class="game-sidebar">
@@ -18,20 +18,23 @@
     <!-- Use aria-live for screen readers to announce changes -->
     <h5 class="section__heading">Next</h5>
     <div class="next-fruit">
-      {#key gameState.dropCount}
-        <div
-          class="next-fruit-wrapper"
-          in:fly={{ delay: 450, easing: quadOut, duration: 250, x: -50 }}
-          out:fly={{ delay: 250, easing: quadOut, duration: 250, x: 50 }}>
-          <Fruit radius="2.5em" name={nextFruit.name} />
-        </div>
-      {/key}
+      {#if nextFruit}
+        {#key gameState.dropCount}
+          <div
+            class="next-fruit-wrapper"
+            in:fly={{ delay: 450, easing: quadOut, duration: 250, x: -50 }}
+            out:fly={{ delay: 250, easing: quadOut, duration: 250, x: 50 }}>
+            <Fruit radius="2.5em" name={nextFruit.name} />
+          </div>
+        {/key}
+      {/if}
     </div>
     <!-- Safety check for name -->
   </section>
   <section class="section" aria-live="polite">
     <h5 class="section__heading">Score</h5>
-    <var class="score"><InterpolatingNumber number={gameState.score} /></var>
+    <var class="score"
+      ><InterpolatingNumber number={gameState?.score ?? 0} /></var>
   </section>
   <section class="section">
     <h5 class="section__heading">Cycle</h5>

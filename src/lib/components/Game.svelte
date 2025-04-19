@@ -1,9 +1,10 @@
 <script lang="ts">
+  import { onMount, setContext } from 'svelte';
   import { scale } from 'svelte/transition';
   import { expoOut } from 'svelte/easing';
 
   // Import Stores and Types
-  import { gameState } from '../stores/game.svelte.js';
+  import { GameState } from '../stores/game.svelte.js';
   import { saveScore } from '../stores/db';
 
   // Import Utilities
@@ -24,13 +25,37 @@
     GAME_WIDTH,
     GAME_WIDTH_PX,
     GAME_OVER_HEIGHT,
-    FRUITS
+    FRUITS,
+    DEFAULT_IMAGES_PATH,
+    DEFAULT_SOUNDS_PATH
   } from '../constants';
+
+  const { imagesPath = DEFAULT_IMAGES_PATH, soundsPath = DEFAULT_SOUNDS_PATH } =
+    $props();
+
+  // Game state reference
+  let gameState = $state<GameState | null>(null);
 
   // Find game area width and cursor position
   let gameRef = $state<HTMLElement | null>(null);
   let gameBoundingRect = useBoundingRect();
   let cursorPosition = useCursorPosition();
+
+  setContext('imagesPath', imagesPath);
+  setContext('soundsPath', soundsPath);
+
+  onMount(() => {
+    gameState = new GameState({
+      imagesPath,
+      soundsPath
+    });
+
+    setContext('gameState', gameState);
+
+    return function onUnmount() {
+      gameState.destroy();
+    };
+  });
 
   $effect(() => {
     cursorPosition.ref = gameRef;
@@ -38,7 +63,7 @@
   });
 
   // Find fruit data
-  let currentFruit = $derived(FRUITS[gameState.currentFruitIndex]);
+  let currentFruit = $derived(FRUITS[gameState?.currentFruitIndex]);
 
   let gameWidthPx = $derived(gameBoundingRect?.rect?.width || GAME_WIDTH_PX);
   let gameScale = $derived(gameWidthPx / GAME_WIDTH_PX);
@@ -55,7 +80,7 @@
 
   // Save score when game is over
   $effect(() => {
-    if (gameState.gameOver) {
+    if (gameState?.gameOver) {
       // Ensure score is a number before saving
       if (typeof gameState.score === 'number') {
         saveScore(gameState.score);
@@ -66,7 +91,7 @@
   });
 
   function dropCurrentFruit() {
-    if (gameState.gameOver || isDropping) return;
+    if (!gameState || gameState.gameOver || isDropping) return;
 
     isDropping = true;
 
@@ -99,7 +124,7 @@
   }
 
   function handleGameOverClose() {
-    gameState.restartGame();
+    gameState?.restartGame();
   }
 </script>
 
@@ -117,8 +142,8 @@
     role="application"
     aria-label="Fruit merging game area"
     tabindex="0">
-    <div class="header"><GameHeader /></div>
-    <div class="sidebar"><GameSidebar /></div>
+    <div class="header"><GameHeader {gameState} /></div>
+    <div class="sidebar"><GameSidebar {gameState} /></div>
 
     <!-- Game Container -->
     <div
@@ -131,48 +156,55 @@
 
       <div class="restricted-area"></div>
 
-      <div class="drop-line" style:translate="{clampedMouseX - 1}px 0"></div>
+      {#if gameState}
+        <div class="drop-line" style:translate="{clampedMouseX - 1}px 0"></div>
 
-      <!-- Merge effects - Use effect.id as the key -->
-      {#each gameState.mergeEffects as effect (effect.id)}
-        <GameEntity x={effect.x} y={effect.y} scale={gameScale}>
-          <MergeEffect {...effect} radius={effect.radius * gameScale} />
-        </GameEntity>
-      {/each}
-
-      <!-- Preview fruit - Appears when not dropping -->
-      {#if !gameState.gameOver && !isDropping && currentFruit}
-        <div
-          class="preview-fruit"
-          aria-hidden="true"
-          style:translate="{clampedMouseX}px 0"
-          in:scale={{ opacity: 1, easing: expoOut, duration: 250 }}>
-          <!-- aria-hidden as it's purely visual feedback -->
-          <GameEntity x={0} y={GAME_OVER_HEIGHT / 2} scale={gameScale}>
-            <Fruit
-              {...currentFruit}
-              radius={currentFruit.radius}
-              scale={gameScale} />
+        <!-- Merge effects - Use effect.id as the key -->
+        {#each gameState.mergeEffects as effect (effect.id)}
+          <GameEntity x={effect.x} y={effect.y} scale={gameScale}>
+            <MergeEffect {...effect} radius={effect.radius * gameScale} />
           </GameEntity>
-        </div>
-      {/if}
+        {/each}
 
-      <!-- Rendered fruits - Use a unique identifier if available, otherwise index -->
-      <!-- Assuming FruitState doesn't have a stable ID, index might be necessary -->
-      <!-- If FruitState *does* get an ID (e.g., collider handle), use fruit.id -->
-      {#each gameState.fruitsState as fruitState, i (i)}
-        {@const fruit = FRUITS[fruitState.fruitIndex]}
-        <GameEntity
-          x={fruitState.x}
-          y={fruitState.y}
-          rotation={fruitState.rotation}
-          scale={gameScale}>
-          <Fruit {...fruit} radius={fruit.radius * gameScale} />
-        </GameEntity>
-      {/each}
+        <!-- Preview fruit - Appears when not dropping -->
+        {#if !gameState.gameOver && !isDropping && currentFruit}
+          <div
+            class="preview-fruit"
+            aria-hidden="true"
+            style:translate="{clampedMouseX}px 0"
+            in:scale={{ opacity: 1, easing: expoOut, duration: 250 }}>
+            <!-- aria-hidden as it's purely visual feedback -->
+            <GameEntity x={0} y={GAME_OVER_HEIGHT / 2} scale={gameScale}>
+              <Fruit
+                {...currentFruit}
+                radius={currentFruit.radius}
+                scale={gameScale} />
+            </GameEntity>
+          </div>
+        {/if}
+
+        <!-- Rendered fruits - Use a unique identifier if available, otherwise index -->
+        <!-- Assuming FruitState doesn't have a stable ID, index might be necessary -->
+        <!-- If FruitState *does* get an ID (e.g., collider handle), use fruit.id -->
+        {#each gameState.fruitsState as fruitState, i (i)}
+          {@const fruit = FRUITS[fruitState.fruitIndex]}
+          <GameEntity
+            x={fruitState.x}
+            y={fruitState.y}
+            rotation={fruitState.rotation}
+            scale={gameScale}>
+            <Fruit {...fruit} radius={fruit.radius * gameScale} />
+          </GameEntity>
+        {/each}
+      {/if}
     </div>
 
-    <GameOverModal open={gameState.gameOver} onClose={handleGameOverClose} />
+    {#if gameState}
+      <GameOverModal
+        open={gameState.gameOver}
+        score={gameState.score}
+        onClose={handleGameOverClose} />
+    {/if}
   </div>
 </div>
 
@@ -218,8 +250,8 @@
   }
 
   .game {
-    --color-border: hsl(0, 0%, 75%);
-    --color-border-light: hsl(0, 0%, 82.5%);
+    --color-border: hsla(0, 0%, 0%, 0.1);
+    --color-border-light: hsla(0, 0%, 0%, 0.075);
     --color-background: hsl(0, 0%, 93%);
     --color-background-light: hsl(0, 0%, 99%);
     --color-background-dark: hsl(0, 0%, 89%);
@@ -335,11 +367,11 @@
     left: 0;
     height: 16.666%;
     width: 100%;
-    border-bottom: 1px solid hsla(0, 0%, 0%, 0.075);
+    border-bottom: 1px solid var(--color-border-light);
     background-image: repeating-linear-gradient(
       -45deg,
-      /* Gradient direction */ hsla(0, 0%, 0%, 0.075) 0px,
-      /* Start color from 0px */ hsla(0, 0%, 0%, 0.075) 1px,
+      /* Gradient direction */ var(--color-border-light) 0px,
+      /* Start color from 0px */ var(--color-border-light) 1px,
       /* Color extends to 1px */ transparent 1px,
       /* Transparent starts at 1px */ transparent 15px
         /* Transparent extends to 3px (1px + 2px) */

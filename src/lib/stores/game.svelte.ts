@@ -11,7 +11,9 @@ import {
   FRUITS, // Assuming FRUITS is typed like: { radius: number; points: number }[]
   GAME_WIDTH,
   GAME_HEIGHT,
-  WALL_THICKNESS
+  WALL_THICKNESS,
+  DEFAULT_IMAGES_PATH,
+  DEFAULT_SOUNDS_PATH
 } from '../constants'; // Ensure constants are correctly typed in their file
 import { throttle } from '../utils/throttle';
 import { AudioManager } from '../game/AudioManager.svelte';
@@ -55,6 +57,10 @@ export interface FruitState {
   rotation: number;
   fruitIndex: number;
 }
+interface GameStateProps {
+  imagesPath?: string;
+  soundsPath?: string;
+}
 
 export class GameState {
   audioManager: AudioManager | null = null;
@@ -79,11 +85,17 @@ export class GameState {
 
   lastBumpSoundTime: DOMHighResTimeStamp = 0;
 
+  // Configuration
+  imagesPath: string = DEFAULT_IMAGES_PATH;
+  soundsPath: string = DEFAULT_SOUNDS_PATH;
+
   throttledCheckGameOver?: () => void;
 
-  constructor() {
+  constructor({ imagesPath, soundsPath }: GameStateProps) {
     (async () => {
-      this.audioManager = new AudioManager();
+      if (imagesPath) this.imagesPath = imagesPath;
+      if (soundsPath) this.soundsPath = soundsPath;
+      this.audioManager = new AudioManager({ soundsPath });
       this.throttledCheckGameOver = throttle(this.checkGameOver, 500);
       await this.initPhysics();
       this.resetGame();
@@ -497,6 +509,8 @@ export class GameState {
   setMergeEffects(newMergeEffects: MergeEffectData[]) {
     this.mergeEffects = newMergeEffects;
   }
-}
 
-export const gameState = new GameState();
+  destroy() {
+    console.log('destroy Game State');
+  }
+}

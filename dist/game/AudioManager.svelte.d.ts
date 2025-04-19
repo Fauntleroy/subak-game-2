@@ -7,12 +7,15 @@ interface PlayOptions {
     volume?: number;
     rate?: number;
 }
+interface AudioManagerProps {
+    soundsPath?: string;
+}
 export declare class AudioManager {
     private sounds;
     private soundCooldowns;
     isMuted: boolean;
     get isAudioContextReady(): boolean;
-    constructor();
+    constructor({ soundsPath }: AudioManagerProps);
     /**
      * Loads a sound effect.
      * @param name - A unique identifier for the sound.
